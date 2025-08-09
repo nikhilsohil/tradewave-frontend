@@ -1,0 +1,172 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+body {
+  @apply m-0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Light Mode - Blue and White Theme */
+:root {
+  /* Brand Colors */
+  --primary: rgb(37, 99, 235);
+  /* blue-600 */
+  --secondary: rgb(239, 246, 255);
+  /* blue-50 */
+  --accent: rgb(29, 78, 216);
+  /* blue-700 */
+
+  /* Text and Background */
+  --foreground: rgb(17, 24, 39);
+  /* gray-900 */
+  --background: rgb(255, 255, 255);
+  /* white */
+  --card: rgb(255, 255, 255);
+  /* white */
+  --border: rgb(219, 234, 254);
+  /* blue-200 */
+  --placeholder: rgb(107, 114, 128);
+  /* gray-500 */
+
+  /* Status Colors */
+  --destructive: rgb(220, 38, 38);
+  /* red-600 */
+  --success: rgb(22, 163, 74);
+  /* green-600 */
+  --warning: rgb(245, 158, 11);
+  /* amber-500 */
+
+  /* Other UI Elements */
+  --popover: rgb(255, 255, 255);
+  --popover-foreground: rgb(17, 24, 39);
+  --muted: rgb(239, 246, 255);
+  --muted-foreground: rgb(107, 114, 128);
+
+  --primary-foreground: rgb(255, 255, 255);
+  --secondary-foreground: rgb(37, 99, 235);
+  --accent-foreground: rgb(255, 255, 255);
+
+  /* Sidebar */
+  --sidebar: rgb(255, 255, 255);
+  --sidebar-foreground: rgb(17, 24, 39);
+  --sidebar-primary: rgb(37, 99, 235);
+  --sidebar-primary-foreground: rgb(255, 255, 255);
+  --sidebar-accent: rgb(239, 246, 255);
+  --sidebar-accent-foreground: rgb(37, 99, 235);
+  --sidebar-border: rgb(219, 234, 254);
+  --sidebar-ring: rgb(96, 165, 250);
+
+  /* Radius */
+  --radius: 0.625rem;
+}
+
+/* Dark Mode */
+.dark {
+  /* Brand Colors */
+  --primary: rgb(96, 165, 250);
+  /* blue-400 */
+  --secondary: rgb(30, 41, 59);
+  /* gray-800 */
+  --accent: rgb(59, 130, 246);
+  /* blue-500 */
+
+  /* Text and Background */
+  --foreground: rgb(249, 250, 251);
+  /* gray-50 */
+  --background: rgb(17, 24, 39);
+  /* gray-900 */
+  --card: rgb(30, 41, 59);
+  /* gray-800 */
+  --border: rgb(55, 65, 81);
+  /* gray-700 */
+  --placeholder: rgb(255, 255, 255);
+  /* white */
+
+  /* Status Colors */
+  --destructive: rgb(248, 113, 113);
+  /* red-400 */
+  --success: rgb(74, 222, 128);
+  /* green-400 */
+  --warning: rgb(251, 191, 36);
+  /* amber-400 */
+
+  /* Other UI Elements */
+  --popover: rgb(30, 41, 59);
+  --popover-foreground: rgb(249, 250, 251);
+  --muted: rgb(30, 41, 59);
+  --muted-foreground: rgb(255, 255, 255);
+
+  --primary-foreground: rgb(17, 24, 39);
+  --secondary-foreground: rgb(249, 250, 251);
+  --accent-foreground: rgb(17, 24, 39);
+
+  /* Sidebar */
+  --sidebar: rgb(30, 41, 59);
+  --sidebar-foreground: rgb(249, 250, 251);
+  --sidebar-primary: rgb(96, 165, 250);
+  --sidebar-primary-foreground: rgb(17, 24, 39);
+  --sidebar-accent: rgb(30, 41, 59);
+  --sidebar-accent-foreground: rgb(249, 250, 251);
+  --sidebar-border: rgb(55, 65, 81);
+  --sidebar-ring: rgb(96, 165, 250);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--sidebar-ring);
+  --color-chart-1: var(--primary);
+  --color-chart-2: var(--secondary);
+  --color-chart-3: var(--accent);
+  --color-chart-4: var(--success);
+  --color-chart-5: var(--warning);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
