@@ -1,5 +1,4 @@
 import httpClient from "../config";
-import type { staffResponse } from "@/api/types/staff";
 import type { BaseResponse, Pagination } from "../types/base";
 
 interface Retailer {
