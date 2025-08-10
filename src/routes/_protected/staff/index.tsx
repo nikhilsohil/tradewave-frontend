@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { Check, Eye, Trash, X } from 'lucide-react'
+import { Check, Eye, Trash } from 'lucide-react'
 import { toast } from "sonner"
 
 export const Route = createFileRoute('/_protected/staff/')({
