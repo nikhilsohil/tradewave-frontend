@@ -1,22 +1,12 @@
 import httpClient from "../config";
+import type { staffResponse } from "@/api/types/staff";
 
-interface Staff {
-    id: number;
-    userId: number;
-    name: string;
-    gender: string;
-    govtId: string;
-    email: string;
-    mobile: string;
-    careOf: string;
-    alternateMobile: string;
-    employeePhoto: string;
-    isApproved: boolean;
-    createdAt: string;
-    updatedAt: string;
-}
 export default class staffApi {
-    static async getStaff(payload: any) {
-        return httpClient.post<>('/api/admin/staff',payload)
+    static getStaff(payload: any) {
+        return httpClient.post<staffResponse>('/api/admin/staff', payload)
+    }
+
+    static approve(id: number) {
+        return httpClient.post(`/api/admin/approve/staff/${id}`)
     }
 }

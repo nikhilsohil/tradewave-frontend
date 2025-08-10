@@ -26,9 +26,9 @@ function getStoredUser(): User | null {
     }
 }
 
-function setStoredUser(user: User | null): void {
-    if (user) {
-        localStorage.setItem(tokenKey, user.token);
+function setStoredUser(user: User | null, token: string | null): void {
+    if (user && token) {
+        localStorage.setItem(tokenKey, token);
         localStorage.setItem(key, JSON.stringify(user));
     } else {
         localStorage.removeItem(key);
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isAuthenticated = !!user
 
     const logout = React.useCallback(async () => {
-        setStoredUser(null)
+        setStoredUser(null, null)
         setUser(null)
         // Get the current path and query parameters
         const currentPathWithParams = window.location.pathname + window.location.search;
@@ -60,8 +60,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // Call login API
                 const response = await AuthApi.login(payload);
                 const user = response.data.data.user;
+                const token = response.data.data.token
                 // Update state
-                setStoredUser(user);
+                setStoredUser(user, token);
                 setUser(user);
 
                 // Handle redirect (if "?redirect=" is present in the current URL)
