@@ -1,8 +1,8 @@
 // types/auth.ts
-export interface BaseResponse {
-  success: boolean;
-  message: string;
-}
+
+import type { BaseResponse } from "@/api/types/base";
+
+
 
 export interface User {
   id: number;
@@ -11,11 +11,11 @@ export interface User {
   mobile: string;
   userType: number;
   isActive: boolean;
-  token: string;
 }
 
 export interface LoginData {
   user: User;
+  token: string;
 }
 
 export interface LoginResponse extends BaseResponse {

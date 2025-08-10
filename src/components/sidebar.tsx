@@ -36,8 +36,8 @@ export default function AppSidebar({
                         show: true,
                     },
                     {
-                        title: "Inventory",
-                        url: "#",
+                        title: "Products",
+                        url: "/product",
                         icon: FolderOpenDotIcon,
                         show: true,
 
@@ -49,8 +49,8 @@ export default function AppSidebar({
                         show: true,
                     },
                     {
-                        title: "Clients",
-                        url: "/clients",
+                        title: "Retailers",
+                        url: "/retailer",
                         icon: FolderOpenDotIcon,
                         show: true,
                     },
