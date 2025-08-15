@@ -12,9 +12,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { UserRound, FolderOpenDot, SlidersHorizontal } from "lucide-react";
+import { UserRound } from "lucide-react";
 import { useAuth } from "@/providers/auth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AppSidebar({
     ...props
@@ -32,8 +31,9 @@ export default function AppSidebar({
                     {
                         title: "Dashboard",
                         url: "/dashboard",
-                        icon: Circle,
+                        // icon: Circle,
                         show: true,
+                        color: "#ff0000",
                     },
                     {
                         title: "Products",
@@ -54,33 +54,16 @@ export default function AppSidebar({
                         icon: FolderOpenDotIcon,
                         show: true,
                     },
+                                        {
+                        title: "Categories",
+                        url: "/category",
+                        icon: FolderOpenDotIcon,
+                        show: true,
+                    },
+
 
                 ],
             },
-            // {
-            //   title: "Favs",
-            //   url: "#",
-            //   items: [
-            //     {
-            //       title: "Loom Mobile App",
-            //       url: "#",
-            //       color: "#7D52F4",
-            //       show: true,
-            //     },
-            //     {
-            //       title: "Monday Redesign",
-            //       url: "#",
-            //       color: "#FB3748",
-            //       show: true,
-            //     },
-            //     {
-            //       title: "Udemy Courses",
-            //       url: "#",
-            //       color: "#FB4BA3",
-            //       show: true,
-            //     },
-            //   ],
-            // },
         ],
     };
 

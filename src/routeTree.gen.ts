@@ -17,6 +17,8 @@ import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dash
 import { Route as ProtectedStaffIndexRouteImport } from './routes/_protected/staff/index'
 import { Route as ProtectedRetailerIndexRouteImport } from './routes/_protected/retailer/index'
 import { Route as ProtectedProductIndexRouteImport } from './routes/_protected/product/index'
+import { Route as ProtectedCategoryIndexRouteImport } from './routes/_protected/category/index'
+import { Route as ProtectedProductAddRouteImport } from './routes/_protected/product/add'
 
 const ProtectedRoute = ProtectedRouteImport.update({
   id: '/_protected',
@@ -57,12 +59,24 @@ const ProtectedProductIndexRoute = ProtectedProductIndexRouteImport.update({
   path: '/product/',
   getParentRoute: () => ProtectedRoute,
 } as any)
+const ProtectedCategoryIndexRoute = ProtectedCategoryIndexRouteImport.update({
+  id: '/category/',
+  path: '/category/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedProductAddRoute = ProtectedProductAddRouteImport.update({
+  id: '/product/add',
+  path: '/product/add',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof ProtectedDashboardRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth': typeof AuthIndexRoute
+  '/product/add': typeof ProtectedProductAddRoute
+  '/category': typeof ProtectedCategoryIndexRoute
   '/product': typeof ProtectedProductIndexRoute
   '/retailer': typeof ProtectedRetailerIndexRoute
   '/staff': typeof ProtectedStaffIndexRoute
@@ -72,6 +86,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof ProtectedDashboardRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth': typeof AuthIndexRoute
+  '/product/add': typeof ProtectedProductAddRoute
+  '/category': typeof ProtectedCategoryIndexRoute
   '/product': typeof ProtectedProductIndexRoute
   '/retailer': typeof ProtectedRetailerIndexRoute
   '/staff': typeof ProtectedStaffIndexRoute
@@ -83,6 +99,8 @@ export interface FileRoutesById {
   '/_protected/dashboard': typeof ProtectedDashboardRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth/': typeof AuthIndexRoute
+  '/_protected/product/add': typeof ProtectedProductAddRoute
+  '/_protected/category/': typeof ProtectedCategoryIndexRoute
   '/_protected/product/': typeof ProtectedProductIndexRoute
   '/_protected/retailer/': typeof ProtectedRetailerIndexRoute
   '/_protected/staff/': typeof ProtectedStaffIndexRoute
@@ -94,6 +112,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/demo/tanstack-query'
     | '/auth'
+    | '/product/add'
+    | '/category'
     | '/product'
     | '/retailer'
     | '/staff'
@@ -103,6 +123,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/demo/tanstack-query'
     | '/auth'
+    | '/product/add'
+    | '/category'
     | '/product'
     | '/retailer'
     | '/staff'
@@ -113,6 +135,8 @@ export interface FileRouteTypes {
     | '/_protected/dashboard'
     | '/demo/tanstack-query'
     | '/auth/'
+    | '/_protected/product/add'
+    | '/_protected/category/'
     | '/_protected/product/'
     | '/_protected/retailer/'
     | '/_protected/staff/'
@@ -183,11 +207,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedProductIndexRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/category/': {
+      id: '/_protected/category/'
+      path: '/category'
+      fullPath: '/category'
+      preLoaderRoute: typeof ProtectedCategoryIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/product/add': {
+      id: '/_protected/product/add'
+      path: '/product/add'
+      fullPath: '/product/add'
+      preLoaderRoute: typeof ProtectedProductAddRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
   }
 }
 
 interface ProtectedRouteChildren {
   ProtectedDashboardRoute: typeof ProtectedDashboardRoute
+  ProtectedProductAddRoute: typeof ProtectedProductAddRoute
+  ProtectedCategoryIndexRoute: typeof ProtectedCategoryIndexRoute
   ProtectedProductIndexRoute: typeof ProtectedProductIndexRoute
   ProtectedRetailerIndexRoute: typeof ProtectedRetailerIndexRoute
   ProtectedStaffIndexRoute: typeof ProtectedStaffIndexRoute
@@ -195,6 +235,8 @@ interface ProtectedRouteChildren {
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedDashboardRoute: ProtectedDashboardRoute,
+  ProtectedProductAddRoute: ProtectedProductAddRoute,
+  ProtectedCategoryIndexRoute: ProtectedCategoryIndexRoute,
   ProtectedProductIndexRoute: ProtectedProductIndexRoute,
   ProtectedRetailerIndexRoute: ProtectedRetailerIndexRoute,
   ProtectedStaffIndexRoute: ProtectedStaffIndexRoute,

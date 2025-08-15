@@ -1,6 +1,5 @@
-import httpClient from "../config";
-import type { staffResponse } from "@/api/types/staff";
-import type { BaseResponse, Pagination } from "../types/base";
+import httpClient from "../../config";
+import type { BaseResponse, Pagination } from "../../types/base";
 
 interface Retailer {
     id: number;
@@ -31,7 +30,11 @@ interface retailerResponse extends BaseResponse {
     }
 }
 export default class RetailerApi {
-    static async get(payload: any) {
+    static get(payload: any) {
         return httpClient.post<retailerResponse>('/api/admin/retailers', payload)
+    }
+
+    static approve(id: number) {
+        return httpClient.post(`/api/admin/approve/retailer/${id}`)
     }
 }

@@ -11,7 +11,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { zodResolver } from "@hookform/resolvers/zod"
 // Validation schemas
 import { z } from "zod";
-import AuthApi from '@/api/auth'
 import { useAuth } from '@/providers/auth'
 
 const loginSchema = z.object({
@@ -61,7 +60,7 @@ export default function LoginPage() {
       const response = await login(data)
       // const response = await AuthApi.login(data)
       console.log("response", response);
-      
+
       setUserInfo({ username: data.email, rememberMe: data.rememberMe })
     } catch (err) {
       setError("Invalid username or password. Please try again.")

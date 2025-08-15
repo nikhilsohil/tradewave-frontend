@@ -1,11 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import staffApi from '@/api/staff'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useQuery } from '@tanstack/react-query'
 import { Check, Eye, Trash } from 'lucide-react'
-import RetailerApi from '@/api/retailer'
+import RetailerApi from "@/services/api/retailer"
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/_protected/retailer/')({
@@ -29,7 +28,7 @@ function RouteComponent() {
 
   const handelApprove = async (id: number) => {
     try {
-      const response = await staffApi.approve(id);
+      const response = await RetailerApi.approve(id);
       toast.success(response?.data?.message || "Staff approved successfully");
     } catch (error: any) {
       console.error("error", error);
