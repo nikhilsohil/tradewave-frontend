@@ -1,5 +1,5 @@
-import AuthApi from '@/api/auth'
-import type { LoginPayload, User } from '@/api/types/auth'
+import AuthApi from '@/services/api/auth'
+import type { LoginPayload, User } from '@/services/types/auth'
 import * as React from 'react'
 
 export interface AuthContextType {

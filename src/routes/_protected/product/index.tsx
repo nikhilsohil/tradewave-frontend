@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useQuery } from '@tanstack/react-query'
 import { Check, Eye, Trash } from 'lucide-react'
-import RetailerApi from '@/api/retailer'
+import RetailerApi from "@/services/api/retailer"
 
 export const Route = createFileRoute('/_protected/product/')({
   component: RouteComponent,

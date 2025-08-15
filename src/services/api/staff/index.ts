@@ -1,5 +1,5 @@
-import httpClient from "../config";
-import type { staffResponse } from "@/api/types/staff";
+import httpClient from "../../config";
+import type { staffResponse } from "@/services/types/staff";
 
 export default class staffApi {
     static getStaff(payload: any) {

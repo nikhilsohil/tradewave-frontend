@@ -1,5 +1,6 @@
-import httpClient from "@/api/config";
-import type { LoginPayload, LoginResponse } from "@/api/types/auth";
+
+import httpClient from "@/services/config";
+import type { LoginPayload, LoginResponse } from "@/services/types/auth";
 
 export default class AuthApi {
 

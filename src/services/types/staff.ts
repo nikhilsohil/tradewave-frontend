@@ -1,4 +1,4 @@
-import type { BaseResponse, Pagination } from "@/api/types/base";
+import type { BaseResponse, Pagination } from "@/services/types/base";
 
 export interface Staff {
     id: number;
