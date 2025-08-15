@@ -85,7 +85,7 @@ function SecSubCategories() {
         form.setValue("name", category.name);
         form.setValue("description", category.description);
         form.setValue("categoryId", category.categoryId);
-        form.setValue("SubCategoryId", category.SubCategoryId);
+        form.setValue("subCategoryId", category.SubCategoryId);
         setEdit(true);
         setOpen(true);
     };
