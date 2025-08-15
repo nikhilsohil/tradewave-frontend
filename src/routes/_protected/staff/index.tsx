@@ -1,4 +1,4 @@
-import staffApi from '@/api/staff'
+import staffApi from '@/services/api/staff'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -43,65 +43,67 @@ function RouteComponent() {
 
 
 
-    return <Card className='h-full'>
-        <CardHeader className='!pb-2 border-b'>
-            <CardTitle>Staff</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Id</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Mobile</TableHead>
-                        <TableHead>E-mail</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead></TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {
-                        staff.map(item =>
-                            <TableRow >
-                                <TableCell>{item?.id}</TableCell>
-                                <TableCell>{item?.name}</TableCell>
-                                <TableCell>{item?.mobile}</TableCell>
-                                <TableCell>{item?.email}</TableCell>
-                                <TableCell>
-                                    {
-                                        item.isApproved ? <Badge>Active</Badge>
-                                            : <Badge variant={'destructive'}>In Active</Badge>
-                                    }
-                                </TableCell>
-                                <TableCell>
-                                    <div className='flex gap-2 justify-center items-center '>
-                                        {!item.isApproved &&
-                                            <span className="rounded-md p-1 border text-green-600 bg-green-200/50"
-                                                onClick={() => handelApprove(item.id)}>
+    return (
+        <Card className='h-full'>
+            <CardHeader className='!pb-2 border-b'>
+                <CardTitle>Staff</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Id</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Mobile</TableHead>
+                            <TableHead>E-mail</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead></TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {
+                            staff.map(item =>
+                                <TableRow >
+                                    <TableCell>{item?.id}</TableCell>
+                                    <TableCell>{item?.name}</TableCell>
+                                    <TableCell>{item?.mobile}</TableCell>
+                                    <TableCell>{item?.email}</TableCell>
+                                    <TableCell>
+                                        {
+                                            item.isApproved ? <Badge>Active</Badge>
+                                                : <Badge variant={'destructive'}>In Active</Badge>
+                                        }
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className='flex gap-2 justify-center items-center '>
+                                            {!item.isApproved &&
+                                                <span className="rounded-md p-1 border text-green-600 bg-green-200/50"
+                                                    onClick={() => handelApprove(item.id)}>
 
-                                                <Check
+                                                    <Check
+                                                        className="cursor-pointer hover:scale-125 transition duration-300"
+                                                        size={18} />
+                                                </span>
+                                            }
+                                            <span className="rounded-md p-1 border text-yellow-600 bg-yellow-200/50">
+                                                <Eye
                                                     className="cursor-pointer hover:scale-125 transition duration-300"
                                                     size={18} />
                                             </span>
-                                        }
-                                        <span className="rounded-md p-1 border text-yellow-600 bg-yellow-200/50">
-                                            <Eye
-                                                className="cursor-pointer hover:scale-125 transition duration-300"
-                                                size={18} />
-                                        </span>
-                                        <span className="rounded-md p-1 border text-red-600 bg-red-200/50">
-                                            <Trash
-                                                className="cursor-pointer hover:scale-125 transition duration-300"
-                                                size={18} />
-                                        </span>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        )
-                    }
+                                            <span className="rounded-md p-1 border text-red-600 bg-red-200/50">
+                                                <Trash
+                                                    className="cursor-pointer hover:scale-125 transition duration-300"
+                                                    size={18} />
+                                            </span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        }
 
-                </TableBody>
-            </Table>
-        </CardContent>
-    </Card>
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    )
 }

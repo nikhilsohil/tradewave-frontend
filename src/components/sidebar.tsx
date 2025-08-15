@@ -31,9 +31,9 @@ export default function AppSidebar({
                     {
                         title: "Dashboard",
                         url: "/dashboard",
-                        icon: Circle,
+                        // icon: Circle,
                         show: true,
-                        color: "primary",
+                        color: "#ff0000",
                     },
                     {
                         title: "Products",
@@ -54,6 +54,13 @@ export default function AppSidebar({
                         icon: FolderOpenDotIcon,
                         show: true,
                     },
+                                        {
+                        title: "Categories",
+                        url: "/category",
+                        icon: FolderOpenDotIcon,
+                        show: true,
+                    },
+
 
                 ],
             },
