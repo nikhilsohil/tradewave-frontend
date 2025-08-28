@@ -3,90 +3,145 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useQuery } from '@tanstack/react-query'
-import { Check, Eye, Trash } from 'lucide-react'
-import RetailerApi from "@/services/api/retailer"
-
+import { Check, Edit, Eye, MoreHorizontal, Plus, Trash, Trash2 } from 'lucide-react'
+import NoDataFound from '@/components/common/no-data-found'
+import ProductApi from '@/services/api/products'
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { SearchInput } from '@/components/common/search-input'
+import ProductFilter from '@/components/products/product-filter'
+import AppPagination from '@/components/common/app-paginationn'
+import { useState } from 'react'
 export const Route = createFileRoute('/_protected/product/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
 
+  const [currentPage, setCurrentPage] = useState(1)
   const payload = {
-    page: 1,
+    page: currentPage,
     perPage: 10,
   }
   const { data } = useQuery({
-    queryKey: ['ProductList'],
-    queryFn: () => RetailerApi.get(payload)
+    queryKey: ['ProductList', payload],
+    queryFn: () => ProductApi.get(payload)
   })
 
   console.log("rsponce", data?.data);
-  const pagination = data?.data?.data?.pagination || {}
-  const retailers = data?.data?.data?.retailers || []
+  const pagination = data?.data?.data?.pagination || { page: 1, totalPages: 1 }
+  const products = data?.data?.data?.products || []
+
+  type BadgeResult = {
+    text: string
+    badgeVariant: "default" | "secondary" | "destructive"
+  }
+
+  const getStackInfo = (input: string | number): BadgeResult => {
+    if (typeof input === "number") {
+      if (input > 10) return { text: "In Stock", badgeVariant: "default" }
+      if (input > 0) return { text: "Low Stock", badgeVariant: "secondary" }
+      return { text: "Out of Stock", badgeVariant: "destructive" }
+    }
+
+    switch (input) {
+      case "In Stock":
+        return { text: "In Stock", badgeVariant: "default" }
+      case "Low Stock":
+        return { text: "Low Stock", badgeVariant: "secondary" }
+      case "Out of Stock":
+        return { text: "Out of Stock", badgeVariant: "destructive" }
+      default:
+        return { text: "In Stock", badgeVariant: "default" } // fallback
+    }
+  }
 
 
 
-  return <Card className='h-full'>
-    <CardHeader className='!pb-2 border-b'>
-      <CardTitle>Staff</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Id</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Owner</TableHead>
-            <TableHead>Mobile</TableHead>
-            <TableHead>E-mail</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {
-            retailers.map(item =>
-              <TableRow >
-                <TableCell>{item?.id}</TableCell>
-                <TableCell>{item?.entityName}</TableCell>
-                <TableCell>{item?.contactPersonName}</TableCell>
-                <TableCell>{item?.mobile}</TableCell>
-                <TableCell>{item?.email}</TableCell>
-                <TableCell>
-                  {
-                    item.isApproved ? <Badge>Active</Badge>
-                      : <Badge variant={'destructive'}>In Active</Badge>
-                  }
-                </TableCell>
-                <TableCell>
-                  <div className='flex gap-2 justify-center items-center '>
-                    {!item.isApproved &&
-                      <span className="rounded-md p-1 border text-green-600 bg-green-200/50">
 
-                        <Check
-                          className="cursor-pointer hover:scale-125 transition duration-300"
-                          size={18} />
-                      </span>
-                    }
-                    <span className="rounded-md p-1 border text-yellow-600 bg-yellow-200/50">
-                      <Eye
-                        className="cursor-pointer hover:scale-125 transition duration-300"
-                        size={18} />
-                    </span>
-                    <span className="rounded-md p-1 border text-red-600 bg-red-200/50">
-                      <Trash
-                        className="cursor-pointer hover:scale-125 transition duration-300"
-                        size={18} />
-                    </span>
-                  </div>
-                </TableCell>
+  return (
+    <Card className='gap-0'>
+      <CardHeader className='border-b !pb-1'>
+        <div className='flex justify-between items-center'>
+          <div className='flex gap-2 items-center'>
+            <CardTitle>Products</CardTitle>
+            <SearchInput onClear={() => console.log("clear")} />
+          </div>
+          <div className='flex gap-2 items-center'>
+            <ProductFilter />
+            <Button variant={"link"}>
+              <Plus /> Add Products
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead className="font-semibold">Product Name</TableHead>
+                <TableHead className="font-semibold">Price</TableHead>
+                <TableHead className="font-semibold">Stock</TableHead>
+                <TableHead className="font-semibold">Status</TableHead>
+                <TableHead className="font-semibold">Category</TableHead>
+                <TableHead className="font-semibold text-right">Actions</TableHead>
               </TableRow>
-            )
-          }
+            </TableHeader>
+            <TableBody>
+              {products.map((product) => {
 
-        </TableBody>
-      </Table>
-    </CardContent>
-  </Card>
+                const stockInfo = getStackInfo(product.stock || 0)
+                return (
+                  <TableRow key={product.id} className="hover:bg-muted/30">
+                    <TableCell className="font-medium">{product.name}</TableCell>
+                    {/* <TableCell className="text-muted-foreground">{product.sku}</TableCell> */}
+                    <TableCell className="font-medium">${product.price}</TableCell>
+                    <TableCell>{product.stock || 0}</TableCell>
+                    <TableCell>
+                      <Badge variant={stockInfo.badgeVariant}>{stockInfo.text}</Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{product.category.name}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Product
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Product
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
+
+        {products.length === 0 && (
+          <div className="py-12">
+            <NoDataFound
+              title="No Products Found"
+            />
+          </div>)
+        }
+        <AppPagination paginationData={pagination} setCurrentPage={setCurrentPage} />
+      </CardContent>
+    </Card>
+  )
 }
