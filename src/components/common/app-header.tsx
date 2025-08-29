@@ -7,7 +7,7 @@ import type { ReactElement } from "react";
 
 interface AppHeaderProps {
     topNav: ReactElement; // Expecting a JSX element like <TopNav>...</TopNav>
-    className: string;
+    className?: string;
 }
 
 
@@ -19,13 +19,12 @@ const AppHeader = ({ className, topNav }: AppHeaderProps) => {
         // <header className="flex sticky top-0 z-50 shrink-0 items-center justify-between gap-2 border-b px-4 bg-card text-card-foreground">
         <header
             className={cn(
-                `flex sticky top-0 z-50 shrink-0 items-center justify-between gap-2 border-b px-4 bg-card text-card-foreground`,
+                `flex sticky top-0 z-50 shrink-0 items-center justify-between gap-2 border-b p-4 bg-card text-card-foreground`,
                 className
             )}
         >
             <div className="flex items-center gap-2 ">
                 <SidebarTrigger className="-ml-1" />
-
                 {topNav}
             </div>
             <div className="flex gap-2 items-center">
@@ -37,9 +36,6 @@ const AppHeader = ({ className, topNav }: AppHeaderProps) => {
                     <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
             </div>
-
-
-
         </header >
     );
 };

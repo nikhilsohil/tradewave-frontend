@@ -1,3 +1,4 @@
+import AppHeader from '@/components/common/app-header'
 import AppSidebar from '@/components/sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
@@ -14,12 +15,17 @@ export const Route = createFileRoute('/_protected')({
 
 function RouteComponent() {
 
-    return (<SidebarProvider>
-        <AppSidebar />
-        <main className='p-4 flex-grow'>
-            <Outlet />
-        </main>
-    </SidebarProvider>)
+    return (
+        <SidebarProvider>
+            <AppSidebar />
+            <main className="flex flex-col flex-grow">
+                <AppHeader topNav={<div></div>} />
+                <section className="flex-grow p-4">
+                    <Outlet />
+                </section>
+            </main>
+        </SidebarProvider>
+    )
 
 }
 

@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Check, Eye, Trash } from 'lucide-react'
 import { toast } from "sonner"
+import NoDataFound from '@/components/common/no-data-found'
 
 export const Route = createFileRoute('/_protected/staff/')({
     component: RouteComponent,
@@ -103,6 +104,9 @@ function RouteComponent() {
 
                     </TableBody>
                 </Table>
+                {
+                    staff.length === 0 && <NoDataFound className='h-full' />
+                }
             </CardContent>
         </Card>
     )
