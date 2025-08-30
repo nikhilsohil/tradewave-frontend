@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Check, Eye, Trash } from 'lucide-react'
 import RetailerApi from "@/services/api/retailer"
 import { toast } from 'sonner'
+import NoDataFound from '@/components/common/no-data-found'
 
 export const Route = createFileRoute('/_protected/retailer/')({
   component: RouteComponent,
@@ -100,9 +101,11 @@ function RouteComponent() {
               </TableRow>
             )
           }
-
         </TableBody>
       </Table>
+      {
+        retailers.length === 0 && <NoDataFound className='h-full' />
+      }
     </CardContent>
   </Card>
 }
