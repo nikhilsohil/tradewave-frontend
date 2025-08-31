@@ -113,7 +113,7 @@ function RouteComponent() {
             </TableHeader>
             <TableBody>
               {products.map((product) => {
-                const stockInfo = getStackInfo(product.stock || 0);
+                const stockInfo = getStackInfo(product.inStock || 0);
                 return (
                   <TableRow key={product.id} className="hover:bg-muted/30">
                     <TableCell className="font-medium">
@@ -123,7 +123,7 @@ function RouteComponent() {
                     <TableCell className="font-medium">
                       ${product.price}
                     </TableCell>
-                    <TableCell>{product.stock || 0}</TableCell>
+                    <TableCell>{product.inStock || 0}</TableCell>
                     <TableCell>
                       <Badge variant={stockInfo.badgeVariant}>
                         {stockInfo.text}

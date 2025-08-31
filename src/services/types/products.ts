@@ -26,7 +26,7 @@ export interface Product {
     retailerPrice: number
     price: number
     mfgDate: any
-    stock: number
+    inStock: number
     expiryDate: any
     thumbnail: any
     createdAt: string
@@ -34,6 +34,7 @@ export interface Product {
     category: Category
     subCategory: SubCategory
     secondSubCategory: SecondSubCategory
+    
 }
 
 interface Category {
