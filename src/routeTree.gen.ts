@@ -18,6 +18,7 @@ import { Route as ProtectedStaffIndexRouteImport } from './routes/_protected/sta
 import { Route as ProtectedRetailerIndexRouteImport } from './routes/_protected/retailer/index'
 import { Route as ProtectedProductIndexRouteImport } from './routes/_protected/product/index'
 import { Route as ProtectedCategoryIndexRouteImport } from './routes/_protected/category/index'
+import { Route as ProtectedBrandIndexRouteImport } from './routes/_protected/brand/index'
 import { Route as ProtectedProductAddRouteImport } from './routes/_protected/product/add'
 
 const ProtectedRoute = ProtectedRouteImport.update({
@@ -64,6 +65,11 @@ const ProtectedCategoryIndexRoute = ProtectedCategoryIndexRouteImport.update({
   path: '/category/',
   getParentRoute: () => ProtectedRoute,
 } as any)
+const ProtectedBrandIndexRoute = ProtectedBrandIndexRouteImport.update({
+  id: '/brand/',
+  path: '/brand/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedProductAddRoute = ProtectedProductAddRouteImport.update({
   id: '/product/add',
   path: '/product/add',
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth': typeof AuthIndexRoute
   '/product/add': typeof ProtectedProductAddRoute
+  '/brand': typeof ProtectedBrandIndexRoute
   '/category': typeof ProtectedCategoryIndexRoute
   '/product': typeof ProtectedProductIndexRoute
   '/retailer': typeof ProtectedRetailerIndexRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByTo {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth': typeof AuthIndexRoute
   '/product/add': typeof ProtectedProductAddRoute
+  '/brand': typeof ProtectedBrandIndexRoute
   '/category': typeof ProtectedCategoryIndexRoute
   '/product': typeof ProtectedProductIndexRoute
   '/retailer': typeof ProtectedRetailerIndexRoute
@@ -100,6 +108,7 @@ export interface FileRoutesById {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth/': typeof AuthIndexRoute
   '/_protected/product/add': typeof ProtectedProductAddRoute
+  '/_protected/brand/': typeof ProtectedBrandIndexRoute
   '/_protected/category/': typeof ProtectedCategoryIndexRoute
   '/_protected/product/': typeof ProtectedProductIndexRoute
   '/_protected/retailer/': typeof ProtectedRetailerIndexRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/auth'
     | '/product/add'
+    | '/brand'
     | '/category'
     | '/product'
     | '/retailer'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/auth'
     | '/product/add'
+    | '/brand'
     | '/category'
     | '/product'
     | '/retailer'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/auth/'
     | '/_protected/product/add'
+    | '/_protected/brand/'
     | '/_protected/category/'
     | '/_protected/product/'
     | '/_protected/retailer/'
@@ -214,6 +226,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedCategoryIndexRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/brand/': {
+      id: '/_protected/brand/'
+      path: '/brand'
+      fullPath: '/brand'
+      preLoaderRoute: typeof ProtectedBrandIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/_protected/product/add': {
       id: '/_protected/product/add'
       path: '/product/add'
@@ -227,6 +246,7 @@ declare module '@tanstack/react-router' {
 interface ProtectedRouteChildren {
   ProtectedDashboardRoute: typeof ProtectedDashboardRoute
   ProtectedProductAddRoute: typeof ProtectedProductAddRoute
+  ProtectedBrandIndexRoute: typeof ProtectedBrandIndexRoute
   ProtectedCategoryIndexRoute: typeof ProtectedCategoryIndexRoute
   ProtectedProductIndexRoute: typeof ProtectedProductIndexRoute
   ProtectedRetailerIndexRoute: typeof ProtectedRetailerIndexRoute
@@ -236,6 +256,7 @@ interface ProtectedRouteChildren {
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedDashboardRoute: ProtectedDashboardRoute,
   ProtectedProductAddRoute: ProtectedProductAddRoute,
+  ProtectedBrandIndexRoute: ProtectedBrandIndexRoute,
   ProtectedCategoryIndexRoute: ProtectedCategoryIndexRoute,
   ProtectedProductIndexRoute: ProtectedProductIndexRoute,
   ProtectedRetailerIndexRoute: ProtectedRetailerIndexRoute,

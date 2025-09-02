@@ -1,10 +1,10 @@
+import { createFileRoute } from "@tanstack/react-router";
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { Edit2, Plus, Trash2 } from "lucide-react";
 import type { useSearch } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import CategoriesApi from "@/services/api/categories";
 import { AlertDialog, AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import {
   AlertDialogAction,
@@ -14,7 +14,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -32,8 +32,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
   Table,
@@ -43,7 +43,11 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import BrandAPI from "@/services/api/brand";
+
+export const Route = createFileRoute("/_protected/brand/")({
+  component: RouteComponent,
+});
 
 const categorySchema = z
   .object({
@@ -74,13 +78,12 @@ const categorySchema = z
       path: ["image"],
     }
   );
-
-function Categories() {
+export default function RouteComponent() {
   const [open, setOpen] = useState(false);
 
   const { data } = useQuery({
-    queryKey: ["categories", open],
-    queryFn: () => CategoriesApi.getCategories({}),
+    queryKey: ["Brand", open],
+    queryFn: () => BrandAPI.getAll(),
   });
 
   const items = data?.data?.data || [];
@@ -107,13 +110,13 @@ function Categories() {
 
       if (edit) {
         // Update category
-        response = await CategoriesApi.update(data.id, formData);
+        response = await BrandAPI.update(data.id, formData);
         toast.success(
           response?.data?.message || "Category updated successfully"
         );
       } else {
         // Create category
-        response = await CategoriesApi.create(formData);
+        response = await BrandAPI.create(formData);
         toast.success(
           response?.data?.message || "Category created successfully"
         );
@@ -128,9 +131,9 @@ function Categories() {
     }
   };
 
-  const deleteCategory = async (id: number) => {
+  const deleteBrand = async (id: number) => {
     try {
-      const response = await CategoriesApi.delete(id);
+      const response = await BrandAPI.delete(id);
       toast.success(response?.data?.message || "Category deleted successfully");
     } catch (error: any) {
       const message =
@@ -139,33 +142,31 @@ function Categories() {
     }
   };
 
-  const handelEdit = (category: any) => {
-    form.setValue("id", category.id);
-    form.setValue("name", category.name);
-    form.setValue("description", category.description);
-    form.setValue("image", category.image || "");
+  const handelEdit = (brand: any) => {
+    form.setValue("id", brand.id);
+    form.setValue("name", brand.name);
+    form.setValue("description", brand.description);
+    form.setValue("image", brand.image || "");
     setEdit(true);
     setOpen(true);
   };
-
-  console.log("formState.errors", form.formState.errors);
-  console.log("formState", form.getValues());
 
   const handleCLose = () => {
     setOpen(false);
     setEdit(false);
     form.reset();
   };
+  const isSubmitting = form.formState.isSubmitting;
 
   return (
     <>
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-xl">Categories</CardTitle>
+            <CardTitle className="text-xl">Brands</CardTitle>
             <Button onClick={() => setOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Category
+              <Plus className="w-4 h-4" />
+              Create Brand
             </Button>
           </div>
         </CardHeader>
@@ -203,9 +204,7 @@ function Categories() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Delete Second Subcategory
-                              </AlertDialogTitle>
+                              <AlertDialogTitle>Delete Brand</AlertDialogTitle>
                               <AlertDialogDescription>
                                 Are you sure you want to delete "{item.name}"?
                                 This action cannot be undone.
@@ -214,7 +213,7 @@ function Categories() {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => deleteCategory(item.id)}
+                                onClick={() => deleteBrand(item.id)}
                               >
                                 Delete
                               </AlertDialogAction>
@@ -229,7 +228,7 @@ function Categories() {
             </Table>
             {items.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
-                No categories yet. Click the button above to add one.
+                No Brand yet. Click the button above to add one.
               </div>
             )}
           </div>
@@ -239,9 +238,7 @@ function Categories() {
       <Dialog open={open} onOpenChange={handleCLose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {edit ? `Edit Category: ` : `Add New Category`}
-            </DialogTitle>
+            <DialogTitle>{edit ? `Edit Brand: ` : `Add New Brand`}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form
@@ -306,7 +303,15 @@ function Categories() {
                 <Button type="button" variant="outline" onClick={handleCLose}>
                   Cancel
                 </Button>
-                <Button type="submit">{edit ? "Save" : "Add"}</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting
+                    ? edit
+                      ? "Updating..."
+                      : "Creating..."
+                    : edit
+                      ? "Update"
+                      : "Create"}
+                </Button>
               </div>
             </form>
           </Form>
@@ -315,5 +320,3 @@ function Categories() {
     </>
   );
 }
-
-export default Categories;
