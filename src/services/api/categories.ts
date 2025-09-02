@@ -16,7 +16,7 @@ export default class CategoriesApi {
     }
 
     static update(id: number, payload: any) {
-        return httpClient.post(`/api/category/${id}`, payload)
+        return httpClient.put(`/api/category/${id}`, payload)
     }
 
     static delete(id: number) {
