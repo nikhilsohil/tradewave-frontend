@@ -38,6 +38,8 @@ export const Route = createFileRoute("/_protected/retailer/")({
 
 function RouteComponent() {
   const [isAssignGroupOpen, setIsAssignGroupOpen] = useState(false);
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false);
   const [selectedRetailer, setSelectedRetailer] = useState<Retailer | null>(
     null
   );
@@ -53,6 +55,18 @@ function RouteComponent() {
 
   const retailers = data?.data?.data?.retailers || [];
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => RetailerApi.remove(id),
+    onSuccess: (response) => {
+      toast.success(response?.data?.message || "Staff removed successfully");
+      refetch();
+      setIsDeleteConfirmationOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "failed to delete retailer");
+    },
+  });
+
   const handelApprove = async (id: number) => {
     try {
       const response = await RetailerApi.approve(id);
@@ -67,9 +81,20 @@ function RouteComponent() {
     }
   };
 
+  const handleRemove = () => {
+    if (selectedRetailer) {
+      deleteMutation.mutate(selectedRetailer.id);
+    }
+  };
+
   const handleAssignGroupClick = (retailer: Retailer) => {
     setSelectedRetailer(retailer);
     setIsAssignGroupOpen(true);
+  };
+
+  const handleDeleteClick = (retailer: Retailer) => {
+    setSelectedRetailer(retailer);
+    setIsDeleteConfirmationOpen(true);
   };
 
   return (
@@ -82,33 +107,39 @@ function RouteComponent() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Id</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Owner</TableHead>
-                <TableHead>Mobile</TableHead>
-                <TableHead>E-mail</TableHead>
-                <TableHead>Group</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead></TableHead>
+                <TableHead className="text-center">Id</TableHead>
+                <TableHead className="text-center">Name</TableHead>
+                <TableHead className="text-center">Owner</TableHead>
+                <TableHead className="text-center">Mobile</TableHead>
+                <TableHead className="text-center">E-mail</TableHead>
+                <TableHead className="text-center">Group</TableHead>
+                <TableHead className="text-center">Status</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {retailers.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item?.id}</TableCell>
-                  <TableCell>{item?.entityName}</TableCell>
-                  <TableCell>{item?.contactPersonName}</TableCell>
-                  <TableCell>{item?.mobile}</TableCell>
-                  <TableCell>{item?.email}</TableCell>
-                  <TableCell>{item?.RetailerGroup?.name || "N/A"}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-center">{item?.id}</TableCell>
+                  <TableCell className="text-center">
+                    {item?.entityName}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {item?.contactPersonName}
+                  </TableCell>
+                  <TableCell className="text-center">{item?.mobile}</TableCell>
+                  <TableCell className="text-center">{item?.email}</TableCell>
+                  <TableCell className="text-center">
+                    {item?.RetailerGroup?.name || "N/A"}
+                  </TableCell>
+                  <TableCell className="text-center">
                     {item.isApproved ? (
                       <Badge>Active</Badge>
                     ) : (
                       <Badge variant={"destructive"}>In Active</Badge>
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-center">
                     <div className="flex gap-2 justify-center items-center ">
                       {!item.isApproved && (
                         <span
@@ -136,7 +167,10 @@ function RouteComponent() {
                           size={18}
                         />
                       </span>
-                      <span className="rounded-md p-1 border text-red-600 bg-red-200/50">
+                      <span
+                        className="rounded-md p-1 border text-red-600 bg-red-200/50"
+                        onClick={() => handleDeleteClick(item)}
+                      >
                         <Trash
                           className="cursor-pointer hover:scale-125 transition duration-300"
                           size={18}
@@ -156,6 +190,14 @@ function RouteComponent() {
           isOpen={isAssignGroupOpen}
           setIsOpen={setIsAssignGroupOpen}
           retailer={selectedRetailer}
+        />
+      )}
+      {selectedRetailer && (
+        <DeleteConfirmationDialog
+          isOpen={isDeleteConfirmationOpen}
+          setIsOpen={setIsDeleteConfirmationOpen}
+          onConfirm={handleRemove}
+          isPending={deleteMutation.isPending}
         />
       )}
     </>
@@ -230,6 +272,42 @@ const AssignGroupDialog = ({
           </Button>
           <Button onClick={handleAssign} disabled={mutation.isPending}>
             {mutation.isPending ? "Assigning..." : "Assign"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const DeleteConfirmationDialog = ({
+  isOpen,
+  setIsOpen,
+  onConfirm,
+  isPending,
+}: {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  onConfirm: () => void;
+  isPending: boolean;
+}) => {
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you sure?</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <p>
+            This action cannot be undone. Are you sure you want to delete this
+            retailer?
+          </p>
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={onConfirm} disabled={isPending}>
+            {isPending ? "Deleting..." : "Delete"}
           </Button>
         </div>
       </DialogContent>

@@ -34,6 +34,9 @@ export default class RetailerApi {
   static get(payload: any) {
     return httpClient.post<retailerResponse>("/api/admin/retailers", payload);
   }
+  static remove(id: number) {
+    return httpClient.delete(`/api/admin/retailers/${id}`);
+  }
 
   static approve(id: number) {
     return httpClient.post(`/api/admin/approve/retailer/${id}`);
