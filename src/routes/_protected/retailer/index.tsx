@@ -14,7 +14,7 @@ import { Check, Eye, Trash, Users } from "lucide-react";
 import RetailerApi from "@/services/api/retailer";
 import { toast } from "sonner";
 import NoDataFound from "@/components/common/no-data-found";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +31,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Retailer } from "@/services/api/retailer";
+import { SearchInput } from "@/components/common/search-input";
+import { useDebounce } from "@/hooks/common";
 
 export const Route = createFileRoute("/_protected/retailer/")({
   component: RouteComponent,
@@ -43,13 +45,16 @@ function RouteComponent() {
   const [selectedRetailer, setSelectedRetailer] = useState<Retailer | null>(
     null
   );
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const payload = {
     page: 1,
     perPage: 10,
+    searchText: debouncedSearchTerm,
   };
   const { data, refetch } = useQuery({
-    queryKey: ["retailer"],
+    queryKey: ["retailer", debouncedSearchTerm],
     queryFn: () => RetailerApi.get(payload),
   });
 
@@ -100,8 +105,15 @@ function RouteComponent() {
   return (
     <>
       <Card className="h-full">
-        <CardHeader className="!pb-2 border-b">
-          <CardTitle>Staff</CardTitle>
+        <CardHeader className="!pb-2 border-b flex-row gap-3 ">
+          <CardTitle>Retailer</CardTitle>
+          <SearchInput
+            placeholder="Search retailer..."
+            className="w-[70%]"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onClear={() => setSearchTerm("")}
+          />
         </CardHeader>
         <CardContent>
           <Table>
