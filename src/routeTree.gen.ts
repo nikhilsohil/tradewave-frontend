@@ -15,6 +15,7 @@ import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
 import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dashboard'
 import { Route as ProtectedStaffIndexRouteImport } from './routes/_protected/staff/index'
+import { Route as ProtectedSettingsIndexRouteImport } from './routes/_protected/settings/index'
 import { Route as ProtectedRetailerIndexRouteImport } from './routes/_protected/retailer/index'
 import { Route as ProtectedProductIndexRouteImport } from './routes/_protected/product/index'
 import { Route as ProtectedCategoryIndexRouteImport } from './routes/_protected/category/index'
@@ -48,6 +49,11 @@ const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
 const ProtectedStaffIndexRoute = ProtectedStaffIndexRouteImport.update({
   id: '/staff/',
   path: '/staff/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedSettingsIndexRoute = ProtectedSettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedRetailerIndexRoute = ProtectedRetailerIndexRouteImport.update({
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/category': typeof ProtectedCategoryIndexRoute
   '/product': typeof ProtectedProductIndexRoute
   '/retailer': typeof ProtectedRetailerIndexRoute
+  '/settings': typeof ProtectedSettingsIndexRoute
   '/staff': typeof ProtectedStaffIndexRoute
 }
 export interface FileRoutesByTo {
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/category': typeof ProtectedCategoryIndexRoute
   '/product': typeof ProtectedProductIndexRoute
   '/retailer': typeof ProtectedRetailerIndexRoute
+  '/settings': typeof ProtectedSettingsIndexRoute
   '/staff': typeof ProtectedStaffIndexRoute
 }
 export interface FileRoutesById {
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/_protected/category/': typeof ProtectedCategoryIndexRoute
   '/_protected/product/': typeof ProtectedProductIndexRoute
   '/_protected/retailer/': typeof ProtectedRetailerIndexRoute
+  '/_protected/settings/': typeof ProtectedSettingsIndexRoute
   '/_protected/staff/': typeof ProtectedStaffIndexRoute
 }
 export interface FileRouteTypes {
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/category'
     | '/product'
     | '/retailer'
+    | '/settings'
     | '/staff'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/category'
     | '/product'
     | '/retailer'
+    | '/settings'
     | '/staff'
   id:
     | '__root__'
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/_protected/category/'
     | '/_protected/product/'
     | '/_protected/retailer/'
+    | '/_protected/settings/'
     | '/_protected/staff/'
   fileRoutesById: FileRoutesById
 }
@@ -205,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedStaffIndexRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/settings/': {
+      id: '/_protected/settings/'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof ProtectedSettingsIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/_protected/retailer/': {
       id: '/_protected/retailer/'
       path: '/retailer'
@@ -250,6 +269,7 @@ interface ProtectedRouteChildren {
   ProtectedCategoryIndexRoute: typeof ProtectedCategoryIndexRoute
   ProtectedProductIndexRoute: typeof ProtectedProductIndexRoute
   ProtectedRetailerIndexRoute: typeof ProtectedRetailerIndexRoute
+  ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute
   ProtectedStaffIndexRoute: typeof ProtectedStaffIndexRoute
 }
 
@@ -260,6 +280,7 @@ const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedCategoryIndexRoute: ProtectedCategoryIndexRoute,
   ProtectedProductIndexRoute: ProtectedProductIndexRoute,
   ProtectedRetailerIndexRoute: ProtectedRetailerIndexRoute,
+  ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,
   ProtectedStaffIndexRoute: ProtectedStaffIndexRoute,
 }
 
