@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, Navigate, createFileRoute } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -33,6 +33,7 @@ import {
 import type { Retailer } from "@/services/api/retailer";
 import { SearchInput } from "@/components/common/search-input";
 import { useDebounce } from "@/hooks/common";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_protected/retailer/")({
   component: RouteComponent,
@@ -101,7 +102,7 @@ function RouteComponent() {
     setSelectedRetailer(retailer);
     setIsDeleteConfirmationOpen(true);
   };
-
+  const navigate = useNavigate();
   return (
     <>
       <Card className="h-full">
@@ -133,9 +134,7 @@ function RouteComponent() {
               {retailers.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="text-center">{item?.id}</TableCell>
-                  <TableCell className="text-center">
-                    {item?.entityName}
-                  </TableCell>
+                  <TableCell className="text-center">{item?.name}</TableCell>
                   <TableCell className="text-center">
                     {item?.contactPersonName}
                   </TableCell>
@@ -173,7 +172,13 @@ function RouteComponent() {
                           size={18}
                         />
                       </span>
-                      <span className="rounded-md p-1 border text-yellow-600 bg-yellow-200/50">
+
+                      <span
+                        className="rounded-md p-1 border text-yellow-600 bg-yellow-200/50"
+                        onClick={() =>
+                          navigate({ to: `/retailer//retailer/${item.id}` })
+                        }
+                      >
                         <Eye
                           className="cursor-pointer hover:scale-125 transition duration-300"
                           size={18}
@@ -262,7 +267,7 @@ const AssignGroupDialog = ({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Assign Group to {retailer.entityName}</DialogTitle>
+          <DialogTitle>Assign Group to {retailer.name}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <Select onValueChange={setSelectedGroup}>

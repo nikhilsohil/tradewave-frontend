@@ -5,16 +5,16 @@ import type { BaseResponse, Pagination } from "../../types/base";
 export interface Retailer {
   id: number;
   userId: number;
-  entityName: string;
-  entityType: string;
+  name: string;
+  type: string;
   govtId: string;
   email: string;
   mobile: string;
   contactPersonName: string;
-  alternateMobile: string;
+  alternateMobile: string | null;
   shopAddress: string;
-  shopPhoto: string;
-  contactPersonPhoto: string;
+  image: string | null;
+  contactPersonImage: string | null;
   isApproved: boolean;
   approvedBy: number;
   approvedAt: string; // ISO date string
@@ -30,9 +30,17 @@ interface retailerResponse extends BaseResponse {
     retailers: Retailer[];
   };
 }
+
+interface RetailerDetailResponse extends BaseResponse {
+  data: Retailer;
+}
+
 export default class RetailerApi {
   static get(payload: any) {
     return httpClient.post<retailerResponse>("/api/admin/retailers", payload);
+  }
+  static getById(id: number) {
+    return httpClient.get<RetailerDetailResponse>(`/api/admin/retailers/${id}`);
   }
   static remove(id: number) {
     return httpClient.delete(`/api/admin/retailers/${id}`);
