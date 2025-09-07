@@ -6,6 +6,7 @@ import {
   Headset,
   LogOut,
   Settings,
+  Group,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
@@ -70,6 +71,12 @@ export default function AppSidebar({
             title: "Retailers",
             url: "/retailer",
             icon: FolderOpenDotIcon,
+            show: true,
+          },
+          {
+            title: "Group",
+            url: "/group",
+            icon: Group,
             show: true,
           },
         ],
