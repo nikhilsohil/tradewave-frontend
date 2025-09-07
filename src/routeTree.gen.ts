@@ -18,9 +18,11 @@ import { Route as ProtectedStaffIndexRouteImport } from './routes/_protected/sta
 import { Route as ProtectedSettingsIndexRouteImport } from './routes/_protected/settings/index'
 import { Route as ProtectedRetailerIndexRouteImport } from './routes/_protected/retailer/index'
 import { Route as ProtectedProductIndexRouteImport } from './routes/_protected/product/index'
+import { Route as ProtectedGroupIndexRouteImport } from './routes/_protected/group/index'
 import { Route as ProtectedCategoryIndexRouteImport } from './routes/_protected/category/index'
 import { Route as ProtectedBrandIndexRouteImport } from './routes/_protected/brand/index'
 import { Route as ProtectedProductAddRouteImport } from './routes/_protected/product/add'
+import { Route as ProtectedRetailerRetailerIdRouteImport } from './routes/_protected/retailer/retailer.$id'
 
 const ProtectedRoute = ProtectedRouteImport.update({
   id: '/_protected',
@@ -66,6 +68,11 @@ const ProtectedProductIndexRoute = ProtectedProductIndexRouteImport.update({
   path: '/product/',
   getParentRoute: () => ProtectedRoute,
 } as any)
+const ProtectedGroupIndexRoute = ProtectedGroupIndexRouteImport.update({
+  id: '/group/',
+  path: '/group/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
 const ProtectedCategoryIndexRoute = ProtectedCategoryIndexRouteImport.update({
   id: '/category/',
   path: '/category/',
@@ -81,6 +88,12 @@ const ProtectedProductAddRoute = ProtectedProductAddRouteImport.update({
   path: '/product/add',
   getParentRoute: () => ProtectedRoute,
 } as any)
+const ProtectedRetailerRetailerIdRoute =
+  ProtectedRetailerRetailerIdRouteImport.update({
+    id: '/retailer/retailer/$id',
+    path: '/retailer/retailer/$id',
+    getParentRoute: () => ProtectedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -90,10 +103,12 @@ export interface FileRoutesByFullPath {
   '/product/add': typeof ProtectedProductAddRoute
   '/brand': typeof ProtectedBrandIndexRoute
   '/category': typeof ProtectedCategoryIndexRoute
+  '/group': typeof ProtectedGroupIndexRoute
   '/product': typeof ProtectedProductIndexRoute
   '/retailer': typeof ProtectedRetailerIndexRoute
   '/settings': typeof ProtectedSettingsIndexRoute
   '/staff': typeof ProtectedStaffIndexRoute
+  '/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,10 +118,12 @@ export interface FileRoutesByTo {
   '/product/add': typeof ProtectedProductAddRoute
   '/brand': typeof ProtectedBrandIndexRoute
   '/category': typeof ProtectedCategoryIndexRoute
+  '/group': typeof ProtectedGroupIndexRoute
   '/product': typeof ProtectedProductIndexRoute
   '/retailer': typeof ProtectedRetailerIndexRoute
   '/settings': typeof ProtectedSettingsIndexRoute
   '/staff': typeof ProtectedStaffIndexRoute
+  '/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -118,10 +135,12 @@ export interface FileRoutesById {
   '/_protected/product/add': typeof ProtectedProductAddRoute
   '/_protected/brand/': typeof ProtectedBrandIndexRoute
   '/_protected/category/': typeof ProtectedCategoryIndexRoute
+  '/_protected/group/': typeof ProtectedGroupIndexRoute
   '/_protected/product/': typeof ProtectedProductIndexRoute
   '/_protected/retailer/': typeof ProtectedRetailerIndexRoute
   '/_protected/settings/': typeof ProtectedSettingsIndexRoute
   '/_protected/staff/': typeof ProtectedStaffIndexRoute
+  '/_protected/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -133,10 +152,12 @@ export interface FileRouteTypes {
     | '/product/add'
     | '/brand'
     | '/category'
+    | '/group'
     | '/product'
     | '/retailer'
     | '/settings'
     | '/staff'
+    | '/retailer/retailer/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -146,10 +167,12 @@ export interface FileRouteTypes {
     | '/product/add'
     | '/brand'
     | '/category'
+    | '/group'
     | '/product'
     | '/retailer'
     | '/settings'
     | '/staff'
+    | '/retailer/retailer/$id'
   id:
     | '__root__'
     | '/'
@@ -160,10 +183,12 @@ export interface FileRouteTypes {
     | '/_protected/product/add'
     | '/_protected/brand/'
     | '/_protected/category/'
+    | '/_protected/group/'
     | '/_protected/product/'
     | '/_protected/retailer/'
     | '/_protected/settings/'
     | '/_protected/staff/'
+    | '/_protected/retailer/retailer/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -238,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedProductIndexRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/group/': {
+      id: '/_protected/group/'
+      path: '/group'
+      fullPath: '/group'
+      preLoaderRoute: typeof ProtectedGroupIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/_protected/category/': {
       id: '/_protected/category/'
       path: '/category'
@@ -259,6 +291,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedProductAddRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/retailer/retailer/$id': {
+      id: '/_protected/retailer/retailer/$id'
+      path: '/retailer/retailer/$id'
+      fullPath: '/retailer/retailer/$id'
+      preLoaderRoute: typeof ProtectedRetailerRetailerIdRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
   }
 }
 
@@ -267,10 +306,12 @@ interface ProtectedRouteChildren {
   ProtectedProductAddRoute: typeof ProtectedProductAddRoute
   ProtectedBrandIndexRoute: typeof ProtectedBrandIndexRoute
   ProtectedCategoryIndexRoute: typeof ProtectedCategoryIndexRoute
+  ProtectedGroupIndexRoute: typeof ProtectedGroupIndexRoute
   ProtectedProductIndexRoute: typeof ProtectedProductIndexRoute
   ProtectedRetailerIndexRoute: typeof ProtectedRetailerIndexRoute
   ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute
   ProtectedStaffIndexRoute: typeof ProtectedStaffIndexRoute
+  ProtectedRetailerRetailerIdRoute: typeof ProtectedRetailerRetailerIdRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
@@ -278,10 +319,12 @@ const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedProductAddRoute: ProtectedProductAddRoute,
   ProtectedBrandIndexRoute: ProtectedBrandIndexRoute,
   ProtectedCategoryIndexRoute: ProtectedCategoryIndexRoute,
+  ProtectedGroupIndexRoute: ProtectedGroupIndexRoute,
   ProtectedProductIndexRoute: ProtectedProductIndexRoute,
   ProtectedRetailerIndexRoute: ProtectedRetailerIndexRoute,
   ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,
   ProtectedStaffIndexRoute: ProtectedStaffIndexRoute,
+  ProtectedRetailerRetailerIdRoute: ProtectedRetailerRetailerIdRoute,
 }
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(

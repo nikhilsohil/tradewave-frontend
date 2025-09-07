@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import CategoriesApi from '@/services/api/categories'
 import SecSubCategoriesApi from '@/services/api/sec-sub-categories'
 import SubCategoriesApi from '@/services/api/sub-categories'
@@ -62,4 +62,20 @@ export const useSecSubCategory = (subCategoryId?: number) => {
     )
 
     return { secSubCategories, isLoading, isError, refetch }
+}
+
+export function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
 }
