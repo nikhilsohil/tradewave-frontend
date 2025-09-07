@@ -148,12 +148,12 @@ export default function AppSidebar({
                 tooltip="Settings"
                 className="text-base h-10 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground relative data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
               >
-                <Link to="." className="absolute inset-0" />
+                <Link to="/settings" className="absolute inset-0" />
                 <Settings />
                 Settings
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
+            {/* <SidebarMenuItem>
               <SidebarMenuButton
                 tooltip="Support"
                 className="text-base h-10 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground relative data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
@@ -162,7 +162,7 @@ export default function AppSidebar({
                 <Headset />
                 Support
               </SidebarMenuButton>
-            </SidebarMenuItem>
+            </SidebarMenuItem> */}
 
             <SidebarMenuItem>
               <SidebarMenuButton

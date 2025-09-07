@@ -1,46 +1,61 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { LogIn, Eye, EyeOff } from "lucide-react"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod"
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { LogIn, Eye, EyeOff } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
 // Validation schemas
 import { z } from "zod";
-import { useAuth } from '@/providers/auth'
+import { useAuth } from "@/providers/auth";
+import AuthApi from "@/services/api/auth";
+import PasswordInput from "@/components/common/password-input";
 
 const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Invalid email address"),
+  email: z.string().min(1, "Email is required").email("Invalid email address"),
   password: z
     .string()
     .min(1, "Password is required")
     .min(6, "Password must be at least 6 characters"),
-  rememberMe: z.boolean().default(false)
-
+  rememberMe: z.boolean().default(false),
 });
 
+type LoginFormData = z.infer<typeof loginSchema>;
 
-type LoginFormData = z.infer<typeof loginSchema>
-
-export const Route = createFileRoute('/auth/')({
+export const Route = createFileRoute("/auth/")({
   component: LoginPage,
-})
-
+  loader: ({ context }) => {
+    const auth = context.auth;
+    if (auth?.isAuthenticated) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
+});
 
 export default function LoginPage() {
-  const { login } = useAuth()
+  const { login } = useAuth();
 
-  const [userInfo, setUserInfo] = useState({ username: "", rememberMe: false })
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
+  const [userInfo, setUserInfo] = useState({ username: "", rememberMe: false });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Login form
   const loginForm = useForm({
@@ -50,25 +65,32 @@ export default function LoginPage() {
       password: "",
       rememberMe: false,
     },
-  })
-
+  });
 
   const handleLogin = async (data: LoginFormData) => {
-    setIsLoading(true)
-    setError("")
+    setIsLoading(true);
+    setError("");
     try {
-      const response = await login(data)
-      // const response = await AuthApi.login(data)
+      // const response = await login(data)
+      const response = await AuthApi.login(data);
+      login(response?.data?.data);
       console.log("response", response);
 
-      setUserInfo({ username: data.email, rememberMe: data.rememberMe })
-    } catch (err) {
-      setError("Invalid username or password. Please try again.")
+      setUserInfo({ username: data.email, rememberMe: data.rememberMe });
+    } catch (err: any) {
+      if (err.response.status === 404) {
+        loginForm.setError("email", { message: err.response.data.message });
+        return;
+      }
+      if (err.response.status === 403) {
+        loginForm.setError("password", { message: err.response.data.message });
+        return;
+      }
+      setError("Invalid username or password. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -89,7 +111,10 @@ export default function LoginPage() {
             </Alert>
           )}
           <Form {...loginForm}>
-            <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+            <form
+              onSubmit={loginForm.handleSubmit(handleLogin)}
+              className="space-y-4"
+            >
               <FormField
                 control={loginForm.control}
                 name="email"
@@ -111,22 +136,10 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Enter your password"
-                          {...field}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                      </div>
+                      <PasswordInput
+                        placeholder="Enter your password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -139,10 +152,15 @@ export default function LoginPage() {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
-                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-normal">Remember me</FormLabel>
+                      <FormLabel className="text-sm font-normal">
+                        Remember me
+                      </FormLabel>
                     </div>
                   </FormItem>
                 )}
@@ -153,24 +171,24 @@ export default function LoginPage() {
               </Button>
 
               <div className="text-center">
-                <Link to='/' className="text-sm text-blue-600 hover:underline">
+                <Link to="/" className="text-sm text-blue-600 hover:underline">
                   Forgot your password?
                 </Link>
               </div>
             </form>
           </Form>
 
-
-
           <div className="text-center">
             <div className="text-xs text-muted-foreground bg-muted/50 rounded-md p-3">
               <p className="font-medium mb-1">Invite Only Access</p>
-              <p>This system requires an invitation. Contact your administrator for access.</p>
+              <p>
+                This system requires an invitation. Contact your administrator
+                for access.
+              </p>
             </div>
           </div>
-
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

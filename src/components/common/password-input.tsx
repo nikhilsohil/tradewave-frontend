@@ -15,7 +15,7 @@ const PasswordInput: React.FC<InputGroupProps> = ({ className, ...props }) => {
       />
 
       <span
-        className="absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-sm text-muted-foreground peer-disabled:opacity-50"
+        className="absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-sm cursor-pointer peer-disabled:opacity-50"
         onClick={() => setShowPassword(!showPassword)}
       >
         {showPassword ? (
