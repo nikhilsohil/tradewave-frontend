@@ -24,9 +24,11 @@ import {
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import DatePicker from "@/components/common/date-picker";
-import type { AddProductVarient } from "@/services/types/varient";
+import type { AddProductVarient, ProductVarient } from "@/services/types/varient";
 import type { Group } from "@/services/types/group";
 import { Trash2 } from "lucide-react";
+import GroupAPI from "@/services/api/group";
+import { useEffect } from "react";
 
 const varientSchema = z.object({
   name: z.string().min(2, "Variant name must be at least 2 characters"),
@@ -59,9 +61,10 @@ type VarientFormData = z.infer<typeof varientSchema>;
 interface VarientFormProps {
   productId: number;
   onSuccess?: () => void;
+  initialData?: ProductVarient | null;
 }
 
-export function VarientForm({ productId, onSuccess }: VarientFormProps) {
+export function VarientForm({ productId, onSuccess, initialData }: VarientFormProps) {
   const form = useForm({
     resolver: zodResolver(varientSchema),
     defaultValues: {
@@ -70,7 +73,13 @@ export function VarientForm({ productId, onSuccess }: VarientFormProps) {
       groupDiscounts: [],
     },
   });
-  const { handleSubmit, control } = form;
+  const { handleSubmit, control, reset } = form;
+
+  useEffect(() => {
+    if (initialData) {
+      reset(initialData);
+    }
+  }, [initialData, reset]);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -79,7 +88,7 @@ export function VarientForm({ productId, onSuccess }: VarientFormProps) {
 
   const { data: retailerGroups } = useQuery({
     queryKey: ["retailer-groups"],
-    queryFn: () => VarientApi.getRetailerGroups(),
+    queryFn: () => GroupAPI.getAll(),
   });
 
   const mutation = useMutation({
@@ -102,6 +111,19 @@ export function VarientForm({ productId, onSuccess }: VarientFormProps) {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: (data: ProductVarient) => {
+      return VarientApi.updateVarient(initialData!.id, data);
+    },
+    onSuccess: () => {
+      toast.success("Product variant updated successfully");
+      onSuccess?.();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update product variant");
+    },
+  });
+
   const groupDiscountMutation = useMutation({
     mutationFn: (data: { variantId: number; retailerGroupId: number; discount: number }) => {
       return VarientApi.addGroupDiscount(data.variantId, { retailerGroupId: data.retailerGroupId, discount: data.discount });
@@ -115,7 +137,11 @@ export function VarientForm({ productId, onSuccess }: VarientFormProps) {
   });
 
   const onSubmit = (data: VarientFormData) => {
-    mutation.mutate({ ...data, productId });
+    if (initialData) {
+      updateMutation.mutate({ ...initialData, ...data });
+    } else {
+      mutation.mutate({ ...data, productId });
+    }
   };
 
   return (
@@ -123,7 +149,7 @@ export function VarientForm({ productId, onSuccess }: VarientFormProps) {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <Card>
           <CardHeader>
-            <CardTitle>Add Product Variant</CardTitle>
+            <CardTitle>{initialData ? "Edit Product Variant" : "Add Product Variant"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -478,8 +504,8 @@ export function VarientForm({ productId, onSuccess }: VarientFormProps) {
         </Card>
 
         <div className="flex justify-end space-x-4">
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Adding Variant..." : "Add Variant"}
+          <Button type="submit" disabled={mutation.isPending || updateMutation.isPending}>
+            {initialData ? (updateMutation.isPending ? "Updating Variant..." : "Update Variant") : (mutation.isPending ? "Adding Variant..." : "Add Variant")}
           </Button>
         </div>
       </form>
