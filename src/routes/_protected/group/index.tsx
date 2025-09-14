@@ -54,8 +54,8 @@ const groupSchema = z.object({
     .string()
     .min(2, "Name must be at least 2 characters")
     .max(50, "Name must be less than 50 characters"),
-  discountRate: z.string().refine((val) => !isNaN(parseFloat(val)), {
-    message: "Discount rate must be a number",
+  creditLimit: z.string().refine((val) => !isNaN(parseFloat(val)), {
+    message: "Credi limit must be a number",
   }),
 });
 
@@ -74,7 +74,7 @@ export default function RouteComponent() {
     defaultValues: {
       id: "",
       name: "",
-      discountRate: "0",
+      creditLimit: "0",
     },
   });
 
@@ -85,7 +85,7 @@ export default function RouteComponent() {
       let response;
       const payload = {
         name: data.name,
-        discountRate: data.discountRate,
+        creditLimit: data.creditLimit,
       };
 
       if (edit) {
@@ -121,7 +121,7 @@ export default function RouteComponent() {
   const handelEdit = (group: Group) => {
     form.setValue("id", group.id);
     form.setValue("name", group.name);
-    form.setValue("discountRate", group.discountRate.toString());
+    form.setValue("creditLimit", group.creditLimit.toString());
     setEdit(true);
     setOpen(true);
   };
@@ -151,7 +151,7 @@ export default function RouteComponent() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Discount Rate</TableHead>
+                  <TableHead>Credit Limit</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -160,7 +160,7 @@ export default function RouteComponent() {
                   <TableRow key={item.id} className="hover:bg-muted/50">
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {item.discountRate}%
+                      {item.creditLimit || 0}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end space-x-2">
@@ -236,14 +236,14 @@ export default function RouteComponent() {
 
               <FormField
                 control={form.control}
-                name="discountRate"
+                name="creditLimit"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Discount Rate (%)</FormLabel>
+                    <FormLabel>Credit Limit</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="Enter discount rate..."
+                        placeholder="Enter credit limit..."
                         {...field}
                       />
                     </FormControl>

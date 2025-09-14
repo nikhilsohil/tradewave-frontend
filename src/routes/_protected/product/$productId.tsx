@@ -1,4 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
 import type React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,7 +53,7 @@ import {
 } from "@/components/ui/table";
 import type { Product } from "@/services/types/products";
 
-export const Route = createFileRoute("/_protected/product/add")({
+export const Route = createFileRoute("/_protected/product/$productId")({
   component: RouteComponent,
 });
 
@@ -67,18 +71,20 @@ const productSchema = z.object({
     .min(1, "Sub Category is required"),
   secondSubCategoryId: z.coerce.number().optional(),
   brandId: z.coerce.number().min(1, "Brand is required"),
-  thumbnail: z.any().optional(),
-  images: z.any().optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
 
 function RouteComponent() {
-  const navigate = useNavigate();
-  const [newProductId, setNewProductId] = useState<number | null>(null);
+  const { productId } = Route.useParams();
+
+  const { edit }: any = useSearch({
+    from: "/_protected/product/$productId",
+  });
+  const [isEditing, setIsEditing] = useState(edit === "true");
   const [activeTab, setActiveTab] = useState("product");
 
-  const form = useForm<ProductFormData>({
+  const form = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "",
@@ -88,8 +94,31 @@ function RouteComponent() {
   const {
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = form;
+
+  const { data: product, isLoading: isProductLoading } = useQuery({
+    queryKey: ["product", productId],
+    queryFn: () => ProductApi.getById(Number(productId)),
+    enabled: !!productId,
+  });
+
+  useEffect(() => {
+    if (product) {
+      setTimeout(() => {
+        reset({
+          name: product?.data?.data?.name ?? "",
+          description: product?.data?.data?.description ?? "",
+          brandId: product?.data?.data?.brandId ?? "",
+          categoryId: product?.data?.data?.categoryId ?? "",
+          subCategoryId: product?.data?.data?.subCategoryId ?? "",
+          secondSubCategoryId: product?.data?.data?.secondSubCategoryId ?? "",
+        });
+      }, 0);
+    }
+  }, [product, reset]);
+
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [images, setImages] = useState<File[]>([]);
@@ -125,15 +154,14 @@ function RouteComponent() {
 
   const mutation = useMutation({
     mutationFn: (formData: FormData) => {
-      return ProductApi.addProduct(formData);
+      return ProductApi.updateProduct(Number(productId), formData);
     },
-    onSuccess: (data) => {
-      toast.success("Product added successfully");
-      setNewProductId(data.data.data.id);
-      setActiveTab("varient");
+    onSuccess: () => {
+      toast.success("Product updated successfully");
+      setIsEditing(false);
     },
     onError: (error: any) => {
-      toast.error(error.message || "Failed to add product");
+      toast.error(error.message || "Failed to update product");
     },
   });
 
@@ -185,8 +213,6 @@ function RouteComponent() {
 
     if (thumbnail) {
       formData.append("thumbnail", thumbnail);
-    } else if (images.length > 0) {
-      formData.append("thumbnail", images[0]);
     }
 
     images.forEach((image) => {
@@ -196,20 +222,25 @@ function RouteComponent() {
     mutation.mutate(formData);
   };
 
+  if (isProductLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList>
         <TabsTrigger value="product">Product</TabsTrigger>
-        <TabsTrigger value="varient" disabled={!newProductId}>
-          Varient
-        </TabsTrigger>
+        <TabsTrigger value="varient">Varient</TabsTrigger>
       </TabsList>
       <TabsContent value="product">
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             <Card>
-              <CardHeader>
-                <CardTitle>Add Product</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Product Details</CardTitle>
+                {!isEditing && (
+                  <Button onClick={() => setIsEditing(true)}>Edit</Button>
+                )}
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -220,7 +251,11 @@ function RouteComponent() {
                       <FormItem>
                         <FormLabel>Product Name *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Product 1" {...field} />
+                          <Input
+                            placeholder="Product 1"
+                            {...field}
+                            disabled={!isEditing}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -232,7 +267,11 @@ function RouteComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Brand *</FormLabel>
-                        <Select onValueChange={field.onChange}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value?.toString()}
+                          disabled={!isEditing}
+                        >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select brand" />
                           </SelectTrigger>
@@ -264,6 +303,7 @@ function RouteComponent() {
                           placeholder="test product"
                           rows={3}
                           {...field}
+                          disabled={!isEditing}
                         />
                       </FormControl>
                       <FormMessage />
@@ -278,7 +318,11 @@ function RouteComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Category *</FormLabel>
-                        <Select onValueChange={field.onChange}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value?.toString()}
+                          disabled={!isEditing}
+                        >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
@@ -308,7 +352,8 @@ function RouteComponent() {
                         <FormLabel>Sub Category *</FormLabel>
                         <Select
                           onValueChange={field.onChange}
-                          disabled={!watchedValues.categoryId}
+                          value={field.value?.toString()}
+                          disabled={!isEditing || !watchedValues.categoryId}
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select sub category" />
@@ -339,7 +384,8 @@ function RouteComponent() {
                         <FormLabel>Second Sub Category</FormLabel>
                         <Select
                           onValueChange={field.onChange}
-                          disabled={!watchedValues.subCategoryId}
+                          value={field.value?.toString()}
+                          disabled={!isEditing || !watchedValues.subCategoryId}
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select second sub category" />
@@ -365,25 +411,55 @@ function RouteComponent() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Product Images</CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <Label>Thumbnail Image</Label>
-                  <div className="flex items-center justify-center w-full">
-                    <label
-                      htmlFor="thumbnail"
-                      className="flex flex-col items-center justify-center w-full h-48 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
-                    >
-                      {thumbnailPreview ? (
-                        <img
-                          src={thumbnailPreview}
-                          alt="Thumbnail preview"
-                          className="w-full h-full object-cover rounded-lg"
+            {isEditing && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Product Images</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <Label>Thumbnail Image</Label>
+                    <div className="flex items-center justify-center w-full">
+                      <label
+                        htmlFor="thumbnail"
+                        className="flex flex-col items-center justify-center w-full h-48 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
+                      >
+                        {thumbnailPreview ? (
+                          <img
+                            src={thumbnailPreview}
+                            alt="Thumbnail preview"
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
+                            <p className="mb-2 text-sm text-muted-foreground">
+                              <span className="font-semibold">
+                                Click to upload
+                              </span>
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              PNG, JPG, GIF up to 10MB
+                            </p>
+                          </div>
+                        )}
+                        <input
+                          id="thumbnail"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleThumbnailUpload}
                         />
-                      ) : (
+                      </label>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Additional Images</Label>
+                    <div className="flex items-center justify-center w-full">
+                      <label
+                        htmlFor="images"
+                        className="flex flex-col items-center justify-center w-full h-48 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
+                      >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
                           <p className="mb-2 text-sm text-muted-foreground">
@@ -392,89 +468,68 @@ function RouteComponent() {
                             </span>
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            PNG, JPG, GIF up to 10MB
+                            You can upload multiple images
                           </p>
                         </div>
-                      )}
-                      <input
-                        id="thumbnail"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleThumbnailUpload}
-                      />
-                    </label>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Additional Images</Label>
-                  <div className="flex items-center justify-center w-full">
-                    <label
-                      htmlFor="images"
-                      className="flex flex-col items-center justify-center w-full h-48 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
-                    >
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
-                        <p className="mb-2 text-sm text-muted-foreground">
-                          <span className="font-semibold">Click to upload</span>
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          You can upload multiple images
-                        </p>
-                      </div>
-                      <input
-                        id="images"
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpload}
-                      />
-                    </label>
-                  </div>
-                </div>
-              </CardContent>
-              {imagePreviews.length > 0 && (
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {imagePreviews.map((preview, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={preview || "/placeholder.svg"}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border transition-all group-hover:brightness-50"
+                        <input
+                          id="images"
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageUpload}
                         />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-destructive text-destructive-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
-                      </div>
-                    ))}
+                      </label>
+                    </div>
                   </div>
                 </CardContent>
-              )}
-            </Card>
+                {imagePreviews.length > 0 && (
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {imagePreviews.map((preview, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={preview || "/placeholder.svg"}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border transition-all group-hover:brightness-50"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-destructive text-destructive-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            )}
 
-            <div className="flex justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate({ to: "/product" })}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Adding Product..." : "Add Product"}
-              </Button>
-            </div>
+            {isEditing && (
+              <div className="flex justify-end space-x-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditing(false);
+                    reset(product.data.data);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            )}
           </form>
         </Form>
       </TabsContent>
       <TabsContent value="varient">
-        <VarientManagement newlyCreatedProductId={newProductId} />
+        <VarientManagement newlyCreatedProductId={Number(productId)} />
       </TabsContent>
     </Tabs>
   );
@@ -629,7 +684,32 @@ function VariantView({ productId }: { productId: number }) {
                   <TableCell>
                     {variant.status ? "Active" : "Inactive"}
                   </TableCell>
-                  <TableCell>dskjfkdsj</TableCell>
+                  <TableCell className="min-w-[100px]">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditingVariant(variant)}
+                      >
+                        <FilePenLine className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "Are you sure you want to delete this variant?"
+                            )
+                          ) {
+                            deleteMutation.mutate(variant.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))
             )}

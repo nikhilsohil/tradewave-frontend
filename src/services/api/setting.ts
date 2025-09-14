@@ -1,6 +1,6 @@
 import httpClient from "@/services/config";
 import type { BaseResponse } from "@/services/types/base";
-import type { ProfileResponse } from "../types/setting";
+import type { ProfileResponse, Tax } from "../types/setting";
 export default class SettingAPI {
   static profile() {
     return httpClient.get<ProfileResponse>("/api/profile");
@@ -24,5 +24,12 @@ export default class SettingAPI {
   }
   static delete(id: number) {
     return httpClient.post<BaseResponse>(`/api/brand/${id}`);
+  }
+
+  static getTax() {
+    return httpClient.get<BaseResponse<Tax>>("/api/admin/system-info");
+  }
+  static updateTax(payload: any) {
+    return httpClient.put<BaseResponse>("/api/admin/system-info", payload);
   }
 }

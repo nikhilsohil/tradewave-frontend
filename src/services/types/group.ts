@@ -3,7 +3,7 @@ import type { BaseResponse, Pagination } from "@/services/types/base";
 export interface Group {
   id: number;
   name: string;
-  discountRate: number;
+  creditLimit: number;
   createdBy: number;
   createdAt: string;
   updatedAt: string;
