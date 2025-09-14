@@ -1,9 +1,9 @@
 import { SummaryCards } from "@/components/summary-card";
 import { createFileRoute } from "@tanstack/react-router";
-import { SalesChart } from "../../components/admin/sales-chart";
-import { RecentOrdersTable } from "../../components/admin/recent-order-table";
+import { SalesChart } from "../../../components/admin/sales-chart";
+import { RecentOrdersTable } from "../../../components/admin/recent-order-table";
 
-export const Route = createFileRoute("/_protected/dashboard")({
+export const Route = createFileRoute("/_protected/dashboard/")({
   component: RouteComponent,
 });
 

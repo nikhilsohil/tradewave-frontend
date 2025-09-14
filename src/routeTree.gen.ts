@@ -13,16 +13,24 @@ import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
-import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dashboard'
+import { Route as ProtectedStaffRouteRouteImport } from './routes/_protected/staff/route'
+import { Route as ProtectedSettingsRouteRouteImport } from './routes/_protected/settings/route'
+import { Route as ProtectedRetailerRouteRouteImport } from './routes/_protected/retailer/route'
+import { Route as ProtectedProductRouteRouteImport } from './routes/_protected/product/route'
+import { Route as ProtectedGroupRouteRouteImport } from './routes/_protected/group/route'
+import { Route as ProtectedDashboardRouteRouteImport } from './routes/_protected/dashboard/route'
+import { Route as ProtectedCategoryRouteRouteImport } from './routes/_protected/category/route'
+import { Route as ProtectedBrandRouteRouteImport } from './routes/_protected/brand/route'
 import { Route as ProtectedStaffIndexRouteImport } from './routes/_protected/staff/index'
 import { Route as ProtectedSettingsIndexRouteImport } from './routes/_protected/settings/index'
 import { Route as ProtectedRetailerIndexRouteImport } from './routes/_protected/retailer/index'
 import { Route as ProtectedProductIndexRouteImport } from './routes/_protected/product/index'
 import { Route as ProtectedGroupIndexRouteImport } from './routes/_protected/group/index'
+import { Route as ProtectedDashboardIndexRouteImport } from './routes/_protected/dashboard/index'
 import { Route as ProtectedCategoryIndexRouteImport } from './routes/_protected/category/index'
 import { Route as ProtectedBrandIndexRouteImport } from './routes/_protected/brand/index'
-import { Route as ProtectedProductProductDetailsRouteImport } from './routes/_protected/product/product-details'
 import { Route as ProtectedProductAddRouteImport } from './routes/_protected/product/add'
+import { Route as ProtectedProductProductIdRouteImport } from './routes/_protected/product/$productId'
 import { Route as ProtectedRetailerRetailerIdRouteImport } from './routes/_protected/retailer/retailer.$id'
 
 const ProtectedRoute = ProtectedRouteImport.update({
@@ -44,89 +52,137 @@ const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
   path: '/demo/tanstack-query',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
+const ProtectedStaffRouteRoute = ProtectedStaffRouteRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedSettingsRouteRoute = ProtectedSettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedRetailerRouteRoute = ProtectedRetailerRouteRouteImport.update({
+  id: '/retailer',
+  path: '/retailer',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedProductRouteRoute = ProtectedProductRouteRouteImport.update({
+  id: '/product',
+  path: '/product',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedGroupRouteRoute = ProtectedGroupRouteRouteImport.update({
+  id: '/group',
+  path: '/group',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedDashboardRouteRoute = ProtectedDashboardRouteRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => ProtectedRoute,
 } as any)
-const ProtectedStaffIndexRoute = ProtectedStaffIndexRouteImport.update({
-  id: '/staff/',
-  path: '/staff/',
+const ProtectedCategoryRouteRoute = ProtectedCategoryRouteRouteImport.update({
+  id: '/category',
+  path: '/category',
   getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedBrandRouteRoute = ProtectedBrandRouteRouteImport.update({
+  id: '/brand',
+  path: '/brand',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedStaffIndexRoute = ProtectedStaffIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedStaffRouteRoute,
 } as any)
 const ProtectedSettingsIndexRoute = ProtectedSettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => ProtectedRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedSettingsRouteRoute,
 } as any)
 const ProtectedRetailerIndexRoute = ProtectedRetailerIndexRouteImport.update({
-  id: '/retailer/',
-  path: '/retailer/',
-  getParentRoute: () => ProtectedRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedRetailerRouteRoute,
 } as any)
 const ProtectedProductIndexRoute = ProtectedProductIndexRouteImport.update({
-  id: '/product/',
-  path: '/product/',
-  getParentRoute: () => ProtectedRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedProductRouteRoute,
 } as any)
 const ProtectedGroupIndexRoute = ProtectedGroupIndexRouteImport.update({
-  id: '/group/',
-  path: '/group/',
-  getParentRoute: () => ProtectedRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedGroupRouteRoute,
+} as any)
+const ProtectedDashboardIndexRoute = ProtectedDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedDashboardRouteRoute,
 } as any)
 const ProtectedCategoryIndexRoute = ProtectedCategoryIndexRouteImport.update({
-  id: '/category/',
-  path: '/category/',
-  getParentRoute: () => ProtectedRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedCategoryRouteRoute,
 } as any)
 const ProtectedBrandIndexRoute = ProtectedBrandIndexRouteImport.update({
-  id: '/brand/',
-  path: '/brand/',
-  getParentRoute: () => ProtectedRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedBrandRouteRoute,
 } as any)
-const ProtectedProductProductDetailsRoute =
-  ProtectedProductProductDetailsRouteImport.update({
-    id: '/product/product-details',
-    path: '/product/product-details',
-    getParentRoute: () => ProtectedRoute,
-  } as any)
 const ProtectedProductAddRoute = ProtectedProductAddRouteImport.update({
-  id: '/product/add',
-  path: '/product/add',
-  getParentRoute: () => ProtectedRoute,
+  id: '/add',
+  path: '/add',
+  getParentRoute: () => ProtectedProductRouteRoute,
 } as any)
+const ProtectedProductProductIdRoute =
+  ProtectedProductProductIdRouteImport.update({
+    id: '/$productId',
+    path: '/$productId',
+    getParentRoute: () => ProtectedProductRouteRoute,
+  } as any)
 const ProtectedRetailerRetailerIdRoute =
   ProtectedRetailerRetailerIdRouteImport.update({
-    id: '/retailer/retailer/$id',
-    path: '/retailer/retailer/$id',
-    getParentRoute: () => ProtectedRoute,
+    id: '/retailer/$id',
+    path: '/retailer/$id',
+    getParentRoute: () => ProtectedRetailerRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof ProtectedDashboardRoute
+  '/brand': typeof ProtectedBrandRouteRouteWithChildren
+  '/category': typeof ProtectedCategoryRouteRouteWithChildren
+  '/dashboard': typeof ProtectedDashboardRouteRouteWithChildren
+  '/group': typeof ProtectedGroupRouteRouteWithChildren
+  '/product': typeof ProtectedProductRouteRouteWithChildren
+  '/retailer': typeof ProtectedRetailerRouteRouteWithChildren
+  '/settings': typeof ProtectedSettingsRouteRouteWithChildren
+  '/staff': typeof ProtectedStaffRouteRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth': typeof AuthIndexRoute
+  '/product/$productId': typeof ProtectedProductProductIdRoute
   '/product/add': typeof ProtectedProductAddRoute
-  '/product/product-details': typeof ProtectedProductProductDetailsRoute
-  '/brand': typeof ProtectedBrandIndexRoute
-  '/category': typeof ProtectedCategoryIndexRoute
-  '/group': typeof ProtectedGroupIndexRoute
-  '/product': typeof ProtectedProductIndexRoute
-  '/retailer': typeof ProtectedRetailerIndexRoute
-  '/settings': typeof ProtectedSettingsIndexRoute
-  '/staff': typeof ProtectedStaffIndexRoute
+  '/brand/': typeof ProtectedBrandIndexRoute
+  '/category/': typeof ProtectedCategoryIndexRoute
+  '/dashboard/': typeof ProtectedDashboardIndexRoute
+  '/group/': typeof ProtectedGroupIndexRoute
+  '/product/': typeof ProtectedProductIndexRoute
+  '/retailer/': typeof ProtectedRetailerIndexRoute
+  '/settings/': typeof ProtectedSettingsIndexRoute
+  '/staff/': typeof ProtectedStaffIndexRoute
   '/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof ProtectedDashboardRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth': typeof AuthIndexRoute
+  '/product/$productId': typeof ProtectedProductProductIdRoute
   '/product/add': typeof ProtectedProductAddRoute
-  '/product/product-details': typeof ProtectedProductProductDetailsRoute
   '/brand': typeof ProtectedBrandIndexRoute
   '/category': typeof ProtectedCategoryIndexRoute
+  '/dashboard': typeof ProtectedDashboardIndexRoute
   '/group': typeof ProtectedGroupIndexRoute
   '/product': typeof ProtectedProductIndexRoute
   '/retailer': typeof ProtectedRetailerIndexRoute
@@ -138,13 +194,21 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_protected': typeof ProtectedRouteWithChildren
-  '/_protected/dashboard': typeof ProtectedDashboardRoute
+  '/_protected/brand': typeof ProtectedBrandRouteRouteWithChildren
+  '/_protected/category': typeof ProtectedCategoryRouteRouteWithChildren
+  '/_protected/dashboard': typeof ProtectedDashboardRouteRouteWithChildren
+  '/_protected/group': typeof ProtectedGroupRouteRouteWithChildren
+  '/_protected/product': typeof ProtectedProductRouteRouteWithChildren
+  '/_protected/retailer': typeof ProtectedRetailerRouteRouteWithChildren
+  '/_protected/settings': typeof ProtectedSettingsRouteRouteWithChildren
+  '/_protected/staff': typeof ProtectedStaffRouteRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth/': typeof AuthIndexRoute
+  '/_protected/product/$productId': typeof ProtectedProductProductIdRoute
   '/_protected/product/add': typeof ProtectedProductAddRoute
-  '/_protected/product/product-details': typeof ProtectedProductProductDetailsRoute
   '/_protected/brand/': typeof ProtectedBrandIndexRoute
   '/_protected/category/': typeof ProtectedCategoryIndexRoute
+  '/_protected/dashboard/': typeof ProtectedDashboardIndexRoute
   '/_protected/group/': typeof ProtectedGroupIndexRoute
   '/_protected/product/': typeof ProtectedProductIndexRoute
   '/_protected/retailer/': typeof ProtectedRetailerIndexRoute
@@ -156,29 +220,37 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/dashboard'
-    | '/demo/tanstack-query'
-    | '/auth'
-    | '/product/add'
-    | '/product/product-details'
     | '/brand'
     | '/category'
+    | '/dashboard'
     | '/group'
     | '/product'
     | '/retailer'
     | '/settings'
     | '/staff'
+    | '/demo/tanstack-query'
+    | '/auth'
+    | '/product/$productId'
+    | '/product/add'
+    | '/brand/'
+    | '/category/'
+    | '/dashboard/'
+    | '/group/'
+    | '/product/'
+    | '/retailer/'
+    | '/settings/'
+    | '/staff/'
     | '/retailer/retailer/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/dashboard'
     | '/demo/tanstack-query'
     | '/auth'
+    | '/product/$productId'
     | '/product/add'
-    | '/product/product-details'
     | '/brand'
     | '/category'
+    | '/dashboard'
     | '/group'
     | '/product'
     | '/retailer'
@@ -189,13 +261,21 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_protected'
+    | '/_protected/brand'
+    | '/_protected/category'
     | '/_protected/dashboard'
+    | '/_protected/group'
+    | '/_protected/product'
+    | '/_protected/retailer'
+    | '/_protected/settings'
+    | '/_protected/staff'
     | '/demo/tanstack-query'
     | '/auth/'
+    | '/_protected/product/$productId'
     | '/_protected/product/add'
-    | '/_protected/product/product-details'
     | '/_protected/brand/'
     | '/_protected/category/'
+    | '/_protected/dashboard/'
     | '/_protected/group/'
     | '/_protected/product/'
     | '/_protected/retailer/'
@@ -241,112 +321,270 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoTanstackQueryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_protected/staff': {
+      id: '/_protected/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof ProtectedStaffRouteRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/settings': {
+      id: '/_protected/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof ProtectedSettingsRouteRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/retailer': {
+      id: '/_protected/retailer'
+      path: '/retailer'
+      fullPath: '/retailer'
+      preLoaderRoute: typeof ProtectedRetailerRouteRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/product': {
+      id: '/_protected/product'
+      path: '/product'
+      fullPath: '/product'
+      preLoaderRoute: typeof ProtectedProductRouteRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/group': {
+      id: '/_protected/group'
+      path: '/group'
+      fullPath: '/group'
+      preLoaderRoute: typeof ProtectedGroupRouteRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
     '/_protected/dashboard': {
       id: '/_protected/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof ProtectedDashboardRouteImport
+      preLoaderRoute: typeof ProtectedDashboardRouteRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/category': {
+      id: '/_protected/category'
+      path: '/category'
+      fullPath: '/category'
+      preLoaderRoute: typeof ProtectedCategoryRouteRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/brand': {
+      id: '/_protected/brand'
+      path: '/brand'
+      fullPath: '/brand'
+      preLoaderRoute: typeof ProtectedBrandRouteRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/staff/': {
       id: '/_protected/staff/'
-      path: '/staff'
-      fullPath: '/staff'
+      path: '/'
+      fullPath: '/staff/'
       preLoaderRoute: typeof ProtectedStaffIndexRouteImport
-      parentRoute: typeof ProtectedRoute
+      parentRoute: typeof ProtectedStaffRouteRoute
     }
     '/_protected/settings/': {
       id: '/_protected/settings/'
-      path: '/settings'
-      fullPath: '/settings'
+      path: '/'
+      fullPath: '/settings/'
       preLoaderRoute: typeof ProtectedSettingsIndexRouteImport
-      parentRoute: typeof ProtectedRoute
+      parentRoute: typeof ProtectedSettingsRouteRoute
     }
     '/_protected/retailer/': {
       id: '/_protected/retailer/'
-      path: '/retailer'
-      fullPath: '/retailer'
+      path: '/'
+      fullPath: '/retailer/'
       preLoaderRoute: typeof ProtectedRetailerIndexRouteImport
-      parentRoute: typeof ProtectedRoute
+      parentRoute: typeof ProtectedRetailerRouteRoute
     }
     '/_protected/product/': {
       id: '/_protected/product/'
-      path: '/product'
-      fullPath: '/product'
+      path: '/'
+      fullPath: '/product/'
       preLoaderRoute: typeof ProtectedProductIndexRouteImport
-      parentRoute: typeof ProtectedRoute
+      parentRoute: typeof ProtectedProductRouteRoute
     }
     '/_protected/group/': {
       id: '/_protected/group/'
-      path: '/group'
-      fullPath: '/group'
+      path: '/'
+      fullPath: '/group/'
       preLoaderRoute: typeof ProtectedGroupIndexRouteImport
-      parentRoute: typeof ProtectedRoute
+      parentRoute: typeof ProtectedGroupRouteRoute
+    }
+    '/_protected/dashboard/': {
+      id: '/_protected/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof ProtectedDashboardIndexRouteImport
+      parentRoute: typeof ProtectedDashboardRouteRoute
     }
     '/_protected/category/': {
       id: '/_protected/category/'
-      path: '/category'
-      fullPath: '/category'
+      path: '/'
+      fullPath: '/category/'
       preLoaderRoute: typeof ProtectedCategoryIndexRouteImport
-      parentRoute: typeof ProtectedRoute
+      parentRoute: typeof ProtectedCategoryRouteRoute
     }
     '/_protected/brand/': {
       id: '/_protected/brand/'
-      path: '/brand'
-      fullPath: '/brand'
+      path: '/'
+      fullPath: '/brand/'
       preLoaderRoute: typeof ProtectedBrandIndexRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
-    '/_protected/product/product-details': {
-      id: '/_protected/product/product-details'
-      path: '/product/product-details'
-      fullPath: '/product/product-details'
-      preLoaderRoute: typeof ProtectedProductProductDetailsRouteImport
-      parentRoute: typeof ProtectedRoute
+      parentRoute: typeof ProtectedBrandRouteRoute
     }
     '/_protected/product/add': {
       id: '/_protected/product/add'
-      path: '/product/add'
+      path: '/add'
       fullPath: '/product/add'
       preLoaderRoute: typeof ProtectedProductAddRouteImport
-      parentRoute: typeof ProtectedRoute
+      parentRoute: typeof ProtectedProductRouteRoute
+    }
+    '/_protected/product/$productId': {
+      id: '/_protected/product/$productId'
+      path: '/$productId'
+      fullPath: '/product/$productId'
+      preLoaderRoute: typeof ProtectedProductProductIdRouteImport
+      parentRoute: typeof ProtectedProductRouteRoute
     }
     '/_protected/retailer/retailer/$id': {
       id: '/_protected/retailer/retailer/$id'
-      path: '/retailer/retailer/$id'
+      path: '/retailer/$id'
       fullPath: '/retailer/retailer/$id'
       preLoaderRoute: typeof ProtectedRetailerRetailerIdRouteImport
-      parentRoute: typeof ProtectedRoute
+      parentRoute: typeof ProtectedRetailerRouteRoute
     }
   }
 }
 
-interface ProtectedRouteChildren {
-  ProtectedDashboardRoute: typeof ProtectedDashboardRoute
-  ProtectedProductAddRoute: typeof ProtectedProductAddRoute
-  ProtectedProductProductDetailsRoute: typeof ProtectedProductProductDetailsRoute
+interface ProtectedBrandRouteRouteChildren {
   ProtectedBrandIndexRoute: typeof ProtectedBrandIndexRoute
+}
+
+const ProtectedBrandRouteRouteChildren: ProtectedBrandRouteRouteChildren = {
+  ProtectedBrandIndexRoute: ProtectedBrandIndexRoute,
+}
+
+const ProtectedBrandRouteRouteWithChildren =
+  ProtectedBrandRouteRoute._addFileChildren(ProtectedBrandRouteRouteChildren)
+
+interface ProtectedCategoryRouteRouteChildren {
   ProtectedCategoryIndexRoute: typeof ProtectedCategoryIndexRoute
+}
+
+const ProtectedCategoryRouteRouteChildren: ProtectedCategoryRouteRouteChildren =
+  {
+    ProtectedCategoryIndexRoute: ProtectedCategoryIndexRoute,
+  }
+
+const ProtectedCategoryRouteRouteWithChildren =
+  ProtectedCategoryRouteRoute._addFileChildren(
+    ProtectedCategoryRouteRouteChildren,
+  )
+
+interface ProtectedDashboardRouteRouteChildren {
+  ProtectedDashboardIndexRoute: typeof ProtectedDashboardIndexRoute
+}
+
+const ProtectedDashboardRouteRouteChildren: ProtectedDashboardRouteRouteChildren =
+  {
+    ProtectedDashboardIndexRoute: ProtectedDashboardIndexRoute,
+  }
+
+const ProtectedDashboardRouteRouteWithChildren =
+  ProtectedDashboardRouteRoute._addFileChildren(
+    ProtectedDashboardRouteRouteChildren,
+  )
+
+interface ProtectedGroupRouteRouteChildren {
   ProtectedGroupIndexRoute: typeof ProtectedGroupIndexRoute
+}
+
+const ProtectedGroupRouteRouteChildren: ProtectedGroupRouteRouteChildren = {
+  ProtectedGroupIndexRoute: ProtectedGroupIndexRoute,
+}
+
+const ProtectedGroupRouteRouteWithChildren =
+  ProtectedGroupRouteRoute._addFileChildren(ProtectedGroupRouteRouteChildren)
+
+interface ProtectedProductRouteRouteChildren {
+  ProtectedProductProductIdRoute: typeof ProtectedProductProductIdRoute
+  ProtectedProductAddRoute: typeof ProtectedProductAddRoute
   ProtectedProductIndexRoute: typeof ProtectedProductIndexRoute
+}
+
+const ProtectedProductRouteRouteChildren: ProtectedProductRouteRouteChildren = {
+  ProtectedProductProductIdRoute: ProtectedProductProductIdRoute,
+  ProtectedProductAddRoute: ProtectedProductAddRoute,
+  ProtectedProductIndexRoute: ProtectedProductIndexRoute,
+}
+
+const ProtectedProductRouteRouteWithChildren =
+  ProtectedProductRouteRoute._addFileChildren(
+    ProtectedProductRouteRouteChildren,
+  )
+
+interface ProtectedRetailerRouteRouteChildren {
   ProtectedRetailerIndexRoute: typeof ProtectedRetailerIndexRoute
-  ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute
-  ProtectedStaffIndexRoute: typeof ProtectedStaffIndexRoute
   ProtectedRetailerRetailerIdRoute: typeof ProtectedRetailerRetailerIdRoute
 }
 
-const ProtectedRouteChildren: ProtectedRouteChildren = {
-  ProtectedDashboardRoute: ProtectedDashboardRoute,
-  ProtectedProductAddRoute: ProtectedProductAddRoute,
-  ProtectedProductProductDetailsRoute: ProtectedProductProductDetailsRoute,
-  ProtectedBrandIndexRoute: ProtectedBrandIndexRoute,
-  ProtectedCategoryIndexRoute: ProtectedCategoryIndexRoute,
-  ProtectedGroupIndexRoute: ProtectedGroupIndexRoute,
-  ProtectedProductIndexRoute: ProtectedProductIndexRoute,
-  ProtectedRetailerIndexRoute: ProtectedRetailerIndexRoute,
-  ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,
+const ProtectedRetailerRouteRouteChildren: ProtectedRetailerRouteRouteChildren =
+  {
+    ProtectedRetailerIndexRoute: ProtectedRetailerIndexRoute,
+    ProtectedRetailerRetailerIdRoute: ProtectedRetailerRetailerIdRoute,
+  }
+
+const ProtectedRetailerRouteRouteWithChildren =
+  ProtectedRetailerRouteRoute._addFileChildren(
+    ProtectedRetailerRouteRouteChildren,
+  )
+
+interface ProtectedSettingsRouteRouteChildren {
+  ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute
+}
+
+const ProtectedSettingsRouteRouteChildren: ProtectedSettingsRouteRouteChildren =
+  {
+    ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,
+  }
+
+const ProtectedSettingsRouteRouteWithChildren =
+  ProtectedSettingsRouteRoute._addFileChildren(
+    ProtectedSettingsRouteRouteChildren,
+  )
+
+interface ProtectedStaffRouteRouteChildren {
+  ProtectedStaffIndexRoute: typeof ProtectedStaffIndexRoute
+}
+
+const ProtectedStaffRouteRouteChildren: ProtectedStaffRouteRouteChildren = {
   ProtectedStaffIndexRoute: ProtectedStaffIndexRoute,
-  ProtectedRetailerRetailerIdRoute: ProtectedRetailerRetailerIdRoute,
+}
+
+const ProtectedStaffRouteRouteWithChildren =
+  ProtectedStaffRouteRoute._addFileChildren(ProtectedStaffRouteRouteChildren)
+
+interface ProtectedRouteChildren {
+  ProtectedBrandRouteRoute: typeof ProtectedBrandRouteRouteWithChildren
+  ProtectedCategoryRouteRoute: typeof ProtectedCategoryRouteRouteWithChildren
+  ProtectedDashboardRouteRoute: typeof ProtectedDashboardRouteRouteWithChildren
+  ProtectedGroupRouteRoute: typeof ProtectedGroupRouteRouteWithChildren
+  ProtectedProductRouteRoute: typeof ProtectedProductRouteRouteWithChildren
+  ProtectedRetailerRouteRoute: typeof ProtectedRetailerRouteRouteWithChildren
+  ProtectedSettingsRouteRoute: typeof ProtectedSettingsRouteRouteWithChildren
+  ProtectedStaffRouteRoute: typeof ProtectedStaffRouteRouteWithChildren
+}
+
+const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedBrandRouteRoute: ProtectedBrandRouteRouteWithChildren,
+  ProtectedCategoryRouteRoute: ProtectedCategoryRouteRouteWithChildren,
+  ProtectedDashboardRouteRoute: ProtectedDashboardRouteRouteWithChildren,
+  ProtectedGroupRouteRoute: ProtectedGroupRouteRouteWithChildren,
+  ProtectedProductRouteRoute: ProtectedProductRouteRouteWithChildren,
+  ProtectedRetailerRouteRoute: ProtectedRetailerRouteRouteWithChildren,
+  ProtectedSettingsRouteRoute: ProtectedSettingsRouteRouteWithChildren,
+  ProtectedStaffRouteRoute: ProtectedStaffRouteRouteWithChildren,
 }
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(

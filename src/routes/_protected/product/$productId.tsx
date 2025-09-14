@@ -1,4 +1,8 @@
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
 import type React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,7 +53,7 @@ import {
 } from "@/components/ui/table";
 import type { Product } from "@/services/types/products";
 
-export const Route = createFileRoute("/_protected/product/product-details")({
+export const Route = createFileRoute("/_protected/product/$productId")({
   component: RouteComponent,
 });
 
@@ -73,7 +77,9 @@ type ProductFormData = z.infer<typeof productSchema>;
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { productId, edit } = useSearch({ from: "/_protected/product/product-details" });
+  const { productId, edit } = useSearch({
+    from: "/_protected/product/$productId",
+  });
   const [isEditing, setIsEditing] = useState(edit === "true");
   const [activeTab, setActiveTab] = useState("product");
 
@@ -99,7 +105,16 @@ function RouteComponent() {
 
   useEffect(() => {
     if (product) {
-      reset(product.data.data);
+      setTimeout(() => {
+        reset({
+          name: product?.data?.data?.name ?? "",
+          description: product?.data?.data?.description ?? "",
+          brandId: product?.data?.data?.brandId ?? "",
+          categoryId: product?.data?.data?.categoryId ?? "",
+          subCategoryId: product?.data?.data?.subCategoryId ?? "",
+          secondSubCategoryId: product?.data?.data?.secondSubCategoryId ?? "",
+        });
+      }, 0);
     }
   }, [product, reset]);
 
@@ -227,219 +242,171 @@ function RouteComponent() {
                 )}
               </CardHeader>
               <CardContent className="space-y-4">
-                {!isEditing ? (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label>Product Name</Label>
-                        <p>{product?.data.data.name}</p>
-                      </div>
-                      <div>
-                        <Label>Brand</Label>
-                        <p>{product?.data.data.brand.name}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <Label>Description</Label>
-                      <p>{product?.data.data.description}</p>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <Label>Category</Label>
-                        <p>{product?.data.data.category.name}</p>
-                      </div>
-                      <div>
-                        <Label>Sub Category</Label>
-                        <p>{product?.data.data.subCategory.name}</p>
-                      </div>
-                      <div>
-                        <Label>Second Sub Category</Label>
-                        <p>{product?.data.data.secondSubCategory?.name}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <Label>Product Images</Label>
-                      <div className="grid grid-cols-4 gap-4 pt-2">
-                        {product?.data.data.ProductImages.map((image: any) => (
-                          <img
-                            key={image.id}
-                            src={image.imageUrl}
-                            alt="Product Image"
-                            className="w-full h-24 object-cover rounded-lg border"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Product Name *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Product 1"
+                            {...field}
+                            disabled={!isEditing}
                           />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Product Name *</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Product 1"
-                                {...field}
-                                disabled={!isEditing}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="brandId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Brand *</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value?.toString()}
-                              disabled={!isEditing}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select brand" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {brands?.data?.data.map((brand: Brand) => (
-                                  <SelectItem
-                                    key={brand.id}
-                                    value={brand.id.toString()}
-                                  >
-                                    {brand.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="brandId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Brand *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value?.toString()}
+                          disabled={!isEditing}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select brand" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {brands?.data?.data.map((brand: Brand) => (
+                              <SelectItem
+                                key={brand.id}
+                                value={brand.id.toString()}
+                              >
+                                {brand.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="test product"
-                              rows={3}
-                              {...field}
-                              disabled={!isEditing}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="test product"
+                          rows={3}
+                          {...field}
+                          disabled={!isEditing}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="categoryId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Category *</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value?.toString()}
-                              disabled={!isEditing}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select category" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categories?.data?.data.map(
-                                  (category: Categories) => (
-                                    <SelectItem
-                                      key={category.id}
-                                      value={category.id.toString()}
-                                    >
-                                      {category.name}
-                                    </SelectItem>
-                                  )
-                                )}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value?.toString()}
+                          disabled={!isEditing}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories?.data?.data.map(
+                              (category: Categories) => (
+                                <SelectItem
+                                  key={category.id}
+                                  value={category.id.toString()}
+                                >
+                                  {category.name}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                      <FormField
-                        control={form.control}
-                        name="subCategoryId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Sub Category *</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value?.toString()}
-                              disabled={!isEditing || !watchedValues.categoryId}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select sub category" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {subCategories?.data?.data.map(
-                                  (subCategory: SubCategories) => (
-                                    <SelectItem
-                                      key={subCategory.id}
-                                      value={subCategory.id.toString()}
-                                    >
-                                      {subCategory.name}
-                                    </SelectItem>
-                                  )
-                                )}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  <FormField
+                    control={form.control}
+                    name="subCategoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sub Category *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value?.toString()}
+                          disabled={!isEditing || !watchedValues.categoryId}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select sub category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {subCategories?.data?.data.map(
+                              (subCategory: SubCategories) => (
+                                <SelectItem
+                                  key={subCategory.id}
+                                  value={subCategory.id.toString()}
+                                >
+                                  {subCategory.name}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                      <FormField
-                        control={form.control}
-                        name="secondSubCategoryId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Second Sub Category</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value?.toString()}
-                              disabled={!isEditing || !watchedValues.subCategoryId}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select second sub category" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {secSubCategories?.data?.data.map(
-                                  (secSubCategory: SecondSubCategories) => (
-                                    <SelectItem
-                                      key={secSubCategory.id}
-                                      value={secSubCategory.id.toString()}
-                                    >
-                                      {secSubCategory.name}
-                                    </SelectItem>
-                                  )
-                                )}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </>
-                )}
+                  <FormField
+                    control={form.control}
+                    name="secondSubCategoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Second Sub Category</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value?.toString()}
+                          disabled={!isEditing || !watchedValues.subCategoryId}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select second sub category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {secSubCategories?.data?.data.map(
+                              (secSubCategory: SecondSubCategories) => (
+                                <SelectItem
+                                  key={secSubCategory.id}
+                                  value={secSubCategory.id.toString()}
+                                >
+                                  {secSubCategory.name}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </CardContent>
             </Card>
 
@@ -464,11 +431,11 @@ function RouteComponent() {
                           />
                         ) : (
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <Upload
-                              className="w-8 h-8 mb-4 text-muted-foreground"
-                            />
+                            <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
                             <p className="mb-2 text-sm text-muted-foreground">
-                              <span className="font-semibold">Click to upload</span>
+                              <span className="font-semibold">
+                                Click to upload
+                              </span>
                             </p>
                             <p className="text-xs text-muted-foreground">
                               PNG, JPG, GIF up to 10MB
@@ -493,11 +460,11 @@ function RouteComponent() {
                         className="flex flex-col items-center justify-center w-full h-48 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
                       >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <Upload
-                            className="w-8 h-8 mb-4 text-muted-foreground"
-                          />
+                          <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
                           <p className="mb-2 text-sm text-muted-foreground">
-                            <span className="font-semibold">Click to upload</span>
+                            <span className="font-semibold">
+                              Click to upload
+                            </span>
                           </p>
                           <p className="text-xs text-muted-foreground">
                             You can upload multiple images
@@ -567,7 +534,11 @@ function RouteComponent() {
   );
 }
 
-function VarientManagement({ newlyCreatedProductId }: { newlyCreatedProductId: number | null }) {
+function VarientManagement({
+  newlyCreatedProductId,
+}: {
+  newlyCreatedProductId: number | null;
+}) {
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
     newlyCreatedProductId
   );

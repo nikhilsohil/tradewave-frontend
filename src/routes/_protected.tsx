@@ -19,10 +19,10 @@ function RouteComponent() {
         <SidebarProvider>
             <AppSidebar />
             <main className="flex flex-col flex-grow">
-                <AppHeader topNav={<div></div>} />
-                <section className="flex-grow p-4">
+                {/* <AppHeader topNav={<div></div>} />
+                <section className="flex-grow p-4"> */}
                     <Outlet />
-                </section>
+                {/* </section> */}
             </main>
         </SidebarProvider>
     )

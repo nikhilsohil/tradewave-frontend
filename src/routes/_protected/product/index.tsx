@@ -33,6 +33,7 @@ import { SearchInput } from "@/components/common/search-input";
 import ProductFilter from "@/components/products/product-filter";
 import AppPagination from "@/components/common/app-paginationn";
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/_protected/product/")({
   component: RouteComponent,
 });
@@ -78,7 +79,7 @@ function RouteComponent() {
   };
 
   return (
-    <Card className="gap-0">
+    <Card className="gap-0 h-full">
       <CardHeader className="border-b !pb-1">
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
@@ -96,8 +97,8 @@ function RouteComponent() {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="rounded-md border">
+      <CardContent className="grow flex flex-col ">
+        <div className="grow">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
@@ -117,7 +118,12 @@ function RouteComponent() {
                 return (
                   <TableRow key={product.id} className="hover:bg-muted/30">
                     <TableCell className="font-medium">
-                      {product.name}
+                      <Link
+                        to="/product/product-details"
+                        search={{ productId: product.id, edit: "true" }}
+                      >
+                        {product.name}
+                      </Link>
                     </TableCell>
                     {/* <TableCell className="text-muted-foreground">{product.sku}</TableCell> */}
                     <TableCell className="font-medium">
@@ -174,14 +180,15 @@ function RouteComponent() {
               })}
             </TableBody>
           </Table>
-        </div>
 
-        {products.length === 0 && (
-          <div className="py-12">
-            <NoDataFound title="No Products Found" />
-          </div>
-        )}
+          {products.length === 0 && (
+            <div className="py-12">
+              <NoDataFound title="No Products Found" />
+            </div>
+          )}
+        </div>
         <AppPagination
+          className=""
           paginationData={pagination}
           setCurrentPage={setCurrentPage}
         />
