@@ -3,7 +3,7 @@ import type React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Upload, X } from "lucide-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import CategoriesApi from "@/services/api/categories";
 import SubCategoriesApi from "@/services/api/sub-categories";
 import ProductApi from "@/services/api/products";
@@ -37,6 +37,17 @@ import BrandAPI from "@/services/api/brand";
 import type { Brand } from "@/services/types/brand";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VarientForm } from "@/components/products/varient-form";
+import VarientApi from "@/services/api/varients";
+import type { ProductVarient } from "@/services/types/varient";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import type { Product } from "@/services/types/products";
 
 export const Route = createFileRoute("/_protected/product/add")({
   component: RouteComponent,
@@ -64,7 +75,10 @@ type ProductFormData = z.infer<typeof productSchema>;
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const form = useForm({
+  const [newProductId, setNewProductId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState("product");
+
+  const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "",
@@ -112,11 +126,12 @@ function RouteComponent() {
     mutationFn: (formData: FormData) => {
       return ProductApi.addProduct(formData);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Product added successfully");
-      navigate({ to: "/product" });
+      setNewProductId(data.data.data.id);
+      setActiveTab("varient");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message || "Failed to add product");
     },
   });
@@ -169,7 +184,7 @@ function RouteComponent() {
   };
 
   return (
-    <Tabs defaultValue="product" className="w-full">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList>
         <TabsTrigger value="product">Product</TabsTrigger>
         <TabsTrigger value="varient">Varient</TabsTrigger>
@@ -422,8 +437,142 @@ function RouteComponent() {
         </Form>
       </TabsContent>
       <TabsContent value="varient">
-        <VarientForm />
+        <VarientManagement newlyCreatedProductId={newProductId} />
       </TabsContent>
     </Tabs>
+  );
+}
+
+function VarientManagement({
+  newlyCreatedProductId,
+}: {
+  newlyCreatedProductId: number | null;
+}) {
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    newlyCreatedProductId
+  );
+
+  const { data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => ProductApi.get({}),
+  });
+
+  useEffect(() => {
+    if (newlyCreatedProductId) {
+      setSelectedProductId(newlyCreatedProductId);
+    }
+  }, [newlyCreatedProductId]);
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Select Product</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Select
+            onValueChange={(value) => setSelectedProductId(Number(value))}
+            value={selectedProductId?.toString()}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select product" />
+            </SelectTrigger>
+            <SelectContent>
+              {products?.data.data.products?.map((product: Product) => (
+                <SelectItem key={product.id} value={product.id.toString()}>
+                  {product.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+      {selectedProductId && <VariantView productId={selectedProductId} />}
+    </div>
+  );
+}
+
+function VariantView({ productId }: { productId: number }) {
+  const queryClient = useQueryClient();
+  const [showAddForm, setShowAddForm] = useState(false);
+  const { data: variants, isLoading } = useQuery({
+    queryKey: ["variants", productId],
+    queryFn: () => VarientApi.getVariantsByProductId(productId),
+    enabled: !!productId,
+  });
+
+  const handleSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["variants", productId] });
+    setShowAddForm(false);
+  };
+
+  if (showAddForm) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Add New Variant</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <VarientForm productId={productId} onSuccess={handleSuccess} />
+          <Button
+            variant="outline"
+            onClick={() => setShowAddForm(false)}
+            className="mt-4"
+          >
+            Cancel
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  console.log("varint", variants);
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Product Variants</CardTitle>
+        <Button onClick={() => setShowAddForm(true)}>Add Variant</Button>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Code</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>MRP</TableHead>
+              <TableHead>Purchase Price</TableHead>
+              <TableHead>Stock</TableHead>
+              <TableHead>Pack Type</TableHead>
+              <TableHead>Units/Pack</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : (
+              variants.data.data?.map((variant: ProductVarient) => (
+                <TableRow key={variant.id}>
+                  <TableCell>{variant.code}</TableCell>
+                  <TableCell>{variant.name}</TableCell>
+                  <TableCell>{variant.mrpWithGST}</TableCell>
+                  <TableCell>{variant.purchasePriceWithGST}</TableCell>
+                  <TableCell>{variant.inStock}</TableCell>
+                  <TableCell>{variant.bulkPackType}</TableCell>
+                  <TableCell>{variant.unitsPerBulkPack}</TableCell>
+                  <TableCell>
+                    {variant.status ? "Active" : "Inactive"}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
