@@ -16,3 +16,10 @@ export interface Profile {
   retailer: any;
   staff: any;
 }
+
+export interface Tax {
+  id: number;
+  igst: number;
+  cgst: number;
+  sgst: number;
+}

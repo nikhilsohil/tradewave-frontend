@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Form, FormField, FormMessage } from "../ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 import { useForm } from "react-hook-form";
 import { Link } from "@tanstack/react-router";
-import { EllipsisVertical, Pen } from "lucide-react";
+import { EllipsisVertical, FormInput, Pen } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -20,9 +27,11 @@ import {
 import ChangePassword from "./change-password";
 
 const formSchema = z.object({
-  name: z.string(),
-  email: z.string(),
-  mobile: z.string(),
+  name: z.string("Invalid name").min(1, "Name is required"),
+  email: z.email("Invalid email address").min(1, "Email is required"),
+  mobile: z.string().min(1, "Mobile number is required").max(10, {
+    message: "Invalid mobile number",
+  }),
   image: z.union([
     z
       .instanceof(File, { message: "Image is required" })
@@ -36,7 +45,7 @@ const formSchema = z.object({
 function Profile({ className }: React.ComponentProps<"div">) {
   const [basicDetails, setBasicDetails] = useState<any>({});
   const [open, setOpen] = useState(false);
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ["profile"],
     queryFn: () => SettingAPI.profile(),
     refetchOnWindowFocus: true,
@@ -63,14 +72,15 @@ function Profile({ className }: React.ComponentProps<"div">) {
     }
   }, [data]);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     try {
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("email", data.email);
       formData.append("mobile", data.mobile);
       formData.append("image", data.image);
-      const responce = SettingAPI.updateProfile(formData);
+      const responce = await SettingAPI.updateProfile(formData);
+      toast.success(responce?.data?.message || "Profile updated successfully");
     } catch (error: any) {
       console.log(error);
       const message =
@@ -92,13 +102,13 @@ function Profile({ className }: React.ComponentProps<"div">) {
     }
   };
 
-  const { isDirty } = form.formState;
+  const { isDirty, isSubmitted } = form.formState;
   return (
     <>
       <Card className={className}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="xl:h-[28rem] xl:overflow-y-auto md:h-full ">
+            <div className="xl:h-[30rem] xl:overflow-y-auto md:h-full ">
               <div className="p-4 flex gap-2  items-center border-b ">
                 <div className="relative p-2 basis-28 shrink-0">
                   <Link
@@ -131,7 +141,7 @@ function Profile({ className }: React.ComponentProps<"div">) {
                     {basicDetails?.email || "_"}
                   </p>
                 </div>
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                   <DropdownMenuTrigger>
                     <EllipsisVertical />
                   </DropdownMenuTrigger>
@@ -142,50 +152,60 @@ function Profile({ className }: React.ComponentProps<"div">) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <div className="p-2 border-b md:space-y-2  md:px-6">
-                <label className="text-unfocused md:text-sm ">Name</label>
+              <div className="p-4 border-b md:space-y-2  md:px-6">
                 <FormField
                   name={"name"}
                   control={form.control}
                   render={({ field }) => (
-                    <div className="col-span-2">
-                      <Input {...field} type="text" placeholder="Enter Name" />
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl className="col-span-2">
+                        <Input
+                          {...field}
+                          type="text"
+                          placeholder="Enter Name"
+                        />
+                      </FormControl>
                       <FormMessage />
-                    </div>
+                    </FormItem>
                   )}
                 />
               </div>
-              <div className="p-2 border-b md:space-y-2  md:px-6">
-                <label className="text-unfocused md:text-sm">Email</label>
+              <div className="p-4 border-b md:space-y-2  md:px-6 ">
                 <FormField
                   name={"email"}
                   control={form.control}
                   render={({ field }) => (
-                    <div className="col-span-2">
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Email Address"
-                      />
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl className="col-span-2">
+                        <Input
+                          {...field}
+                          type="text"
+                          placeholder="Enter Email"
+                        />
+                      </FormControl>
                       <FormMessage />
-                    </div>
+                    </FormItem>
                   )}
                 />
               </div>
-              <div className="p-2 border-b md:space-y-2  md:px-6">
-                <label className="text-unfocused md:text-sm">Mobile No.</label>
+              <div className="p-4 border-b md:space-y-2  md:px-6">
                 <FormField
                   name={"mobile"}
                   control={form.control}
                   render={({ field }) => (
-                    <div className="col-span-2">
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Enter Phone Number"
-                      />
+                    <FormItem>
+                      <FormLabel>Mobile No.</FormLabel>
+                      <FormControl className="col-span-2">
+                        <Input
+                          {...field}
+                          type="text"
+                          placeholder="Enter Mobile No."
+                        />
+                      </FormControl>
                       <FormMessage />
-                    </div>
+                    </FormItem>
                   )}
                 />
               </div>
@@ -200,7 +220,9 @@ function Profile({ className }: React.ComponentProps<"div">) {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit">Save</Button>
+                  <Button type="submit" disabled={isSubmitted}>
+                    {isSubmitted ? "Updating..." : "Update"}
+                  </Button>
                 </div>
               )}
             </div>

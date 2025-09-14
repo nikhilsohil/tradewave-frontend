@@ -76,7 +76,7 @@ function ChangePassword({ open, setOpen }: { open: boolean; setOpen: any }) {
     setOpen(false);
   };
   const { isSubmitting } = form.formState;
-
+  if (!open) return null;
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <Form {...form}>
