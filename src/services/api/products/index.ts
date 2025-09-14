@@ -8,7 +8,10 @@ export default class ProductApi {
 
   static addProduct(payload: any) {
     console.log("payload", payload);
-    
-    return httpClient.post<ProductResponse>("/api/products/create", payload);
+
+    return httpClient.post<ProductResponse>(
+      "api/admin/product/create",
+      payload
+    );
   }
 }
