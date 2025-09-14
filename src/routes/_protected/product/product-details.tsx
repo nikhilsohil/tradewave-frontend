@@ -1,4 +1,8 @@
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
 import type React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, X } from "lucide-react";
+import { FilePenLine, Trash2, Upload, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import CategoriesApi from "@/services/api/categories";
 import SubCategoriesApi from "@/services/api/sub-categories";
@@ -73,7 +77,9 @@ type ProductFormData = z.infer<typeof productSchema>;
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { productId, edit } = useSearch({ from: "/_protected/product/product-details" });
+  const { productId, edit } = useSearch({
+    from: "/_protected/product/product-details",
+  });
   const [isEditing, setIsEditing] = useState(edit === "true");
   const [activeTab, setActiveTab] = useState("product");
 
@@ -415,7 +421,9 @@ function RouteComponent() {
                             <Select
                               onValueChange={field.onChange}
                               value={field.value?.toString()}
-                              disabled={!isEditing || !watchedValues.subCategoryId}
+                              disabled={
+                                !isEditing || !watchedValues.subCategoryId
+                              }
                             >
                               <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select second sub category" />
@@ -464,11 +472,11 @@ function RouteComponent() {
                           />
                         ) : (
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <Upload
-                              className="w-8 h-8 mb-4 text-muted-foreground"
-                            />
+                            <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
                             <p className="mb-2 text-sm text-muted-foreground">
-                              <span className="font-semibold">Click to upload</span>
+                              <span className="font-semibold">
+                                Click to upload
+                              </span>
                             </p>
                             <p className="text-xs text-muted-foreground">
                               PNG, JPG, GIF up to 10MB
@@ -493,11 +501,11 @@ function RouteComponent() {
                         className="flex flex-col items-center justify-center w-full h-48 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
                       >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <Upload
-                            className="w-8 h-8 mb-4 text-muted-foreground"
-                          />
+                          <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
                           <p className="mb-2 text-sm text-muted-foreground">
-                            <span className="font-semibold">Click to upload</span>
+                            <span className="font-semibold">
+                              Click to upload
+                            </span>
                           </p>
                           <p className="text-xs text-muted-foreground">
                             You can upload multiple images
@@ -567,7 +575,11 @@ function RouteComponent() {
   );
 }
 
-function VarientManagement({ newlyCreatedProductId }: { newlyCreatedProductId: number | null }) {
+function VarientManagement({
+  newlyCreatedProductId,
+}: {
+  newlyCreatedProductId: number | null;
+}) {
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
     newlyCreatedProductId
   );
@@ -615,28 +627,53 @@ function VarientManagement({ newlyCreatedProductId }: { newlyCreatedProductId: n
 function VariantView({ productId }: { productId: number }) {
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingVariant, setEditingVariant] = useState<ProductVarient | null>(
+    null
+  );
+
   const { data: variants, isLoading } = useQuery({
     queryKey: ["variants", productId],
     queryFn: () => VarientApi.getVariantsByProductId(productId),
     enabled: !!productId,
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => VarientApi.deleteVarient(id),
+    onSuccess: () => {
+      toast.success("Variant deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["variants", productId] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete variant");
+    },
+  });
+
   const handleSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["variants", productId] });
     setShowAddForm(false);
+    setEditingVariant(null);
   };
 
-  if (showAddForm) {
+  if (showAddForm || editingVariant) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Add New Variant</CardTitle>
+          <CardTitle>
+            {editingVariant ? "Edit Variant" : "Add New Variant"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <VarientForm productId={productId} onSuccess={handleSuccess} />
+          <VarientForm
+            productId={productId}
+            onSuccess={handleSuccess}
+            initialData={editingVariant}
+          />
           <Button
             variant="outline"
-            onClick={() => setShowAddForm(false)}
+            onClick={() => {
+              setShowAddForm(false);
+              setEditingVariant(null);
+            }}
             className="mt-4"
           >
             Cancel
@@ -664,12 +701,13 @@ function VariantView({ productId }: { productId: number }) {
               <TableHead>Pack Type</TableHead>
               <TableHead>Units/Pack</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center">
+                <TableCell colSpan={9} className="text-center">
                   Loading...
                 </TableCell>
               </TableRow>
@@ -685,6 +723,32 @@ function VariantView({ productId }: { productId: number }) {
                   <TableCell>{variant.unitsPerBulkPack}</TableCell>
                   <TableCell>
                     {variant.status ? "Active" : "Inactive"}
+                  </TableCell>
+                  <TableCell className="min-w-[100px]">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditingVariant(variant)}
+                      >
+                        <FilePenLine className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "Are you sure you want to delete this variant?"
+                            )
+                          ) {
+                            deleteMutation.mutate(variant.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
