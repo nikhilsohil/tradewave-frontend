@@ -140,11 +140,25 @@ function RouteComponent() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              router.navigate({
+                                to: "/product/product-details",
+                                search: { productId: product.id },
+                              })
+                            }
+                          >
                             <Eye className="mr-2 h-4 w-4" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              router.navigate({
+                                to: "/product/product-details",
+                                search: { productId: product.id, edit: "true" },
+                              })
+                            }
+                          >
                             <Edit className="mr-2 h-4 w-4" />
                             Edit Product
                           </DropdownMenuItem>
