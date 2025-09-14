@@ -119,7 +119,8 @@ function RouteComponent() {
                   <TableRow key={product.id} className="hover:bg-muted/30">
                     <TableCell className="font-medium">
                       <Link
-                        to="/product/product-details"
+                        to="/product/$productId"
+                        params={{ productId: product.id.toString() }}
                         search={{ productId: product.id, edit: "true" }}
                       >
                         {product.name}
@@ -149,8 +150,8 @@ function RouteComponent() {
                           <DropdownMenuItem
                             onClick={() =>
                               router.navigate({
-                                to: "/product/product-details",
-                                search: { productId: product.id },
+                                to: "/product/$productId",
+                                params: { productId: product.id.toString() },
                               })
                             }
                           >
@@ -160,7 +161,8 @@ function RouteComponent() {
                           <DropdownMenuItem
                             onClick={() =>
                               router.navigate({
-                                to: "/product/product-details",
+                                to: "/product/$productId",
+                                params: { productId: product.id.toString() },
                                 search: { productId: product.id, edit: "true" },
                               })
                             }

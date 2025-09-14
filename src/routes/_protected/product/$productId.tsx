@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, X } from "lucide-react";
+import { FilePenLine, Trash2, Upload, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import CategoriesApi from "@/services/api/categories";
 import SubCategoriesApi from "@/services/api/sub-categories";
@@ -76,14 +76,15 @@ const productSchema = z.object({
 type ProductFormData = z.infer<typeof productSchema>;
 
 function RouteComponent() {
-  const navigate = useNavigate();
-  const { productId, edit } = useSearch({
+  const { productId } = Route.useParams();
+
+  const { edit }: any = useSearch({
     from: "/_protected/product/$productId",
   });
   const [isEditing, setIsEditing] = useState(edit === "true");
   const [activeTab, setActiveTab] = useState("product");
 
-  const form = useForm<ProductFormData>({
+  const form = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "",
@@ -586,28 +587,53 @@ function VarientManagement({
 function VariantView({ productId }: { productId: number }) {
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingVariant, setEditingVariant] = useState<ProductVarient | null>(
+    null
+  );
+
   const { data: variants, isLoading } = useQuery({
     queryKey: ["variants", productId],
     queryFn: () => VarientApi.getVariantsByProductId(productId),
     enabled: !!productId,
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => VarientApi.deleteVarient(id),
+    onSuccess: () => {
+      toast.success("Variant deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["variants", productId] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete variant");
+    },
+  });
+
   const handleSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["variants", productId] });
     setShowAddForm(false);
+    setEditingVariant(null);
   };
 
-  if (showAddForm) {
+  if (showAddForm || editingVariant) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Add New Variant</CardTitle>
+          <CardTitle>
+            {editingVariant ? "Edit Variant" : "Add New Variant"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <VarientForm productId={productId} onSuccess={handleSuccess} />
+          <VarientForm
+            productId={productId}
+            onSuccess={handleSuccess}
+            initialData={editingVariant}
+          />
           <Button
             variant="outline"
-            onClick={() => setShowAddForm(false)}
+            onClick={() => {
+              setShowAddForm(false);
+              setEditingVariant(null);
+            }}
             className="mt-4"
           >
             Cancel
@@ -635,12 +661,13 @@ function VariantView({ productId }: { productId: number }) {
               <TableHead>Pack Type</TableHead>
               <TableHead>Units/Pack</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center">
+                <TableCell colSpan={9} className="text-center">
                   Loading...
                 </TableCell>
               </TableRow>
@@ -656,6 +683,32 @@ function VariantView({ productId }: { productId: number }) {
                   <TableCell>{variant.unitsPerBulkPack}</TableCell>
                   <TableCell>
                     {variant.status ? "Active" : "Inactive"}
+                  </TableCell>
+                  <TableCell className="min-w-[100px]">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditingVariant(variant)}
+                      >
+                        <FilePenLine className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "Are you sure you want to delete this variant?"
+                            )
+                          ) {
+                            deleteMutation.mutate(variant.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
