@@ -20,4 +20,35 @@ interface AddProductVarient {
   DiscountOnCOB?: number;
   DiscountOnCOD?: number;
 }
-export type { AddProductVarient };
+
+interface ProductVarient {
+  id: number;
+  productId: number;
+  code: string;
+  name: string;
+  unit_discription: string;
+  DiscountOnCOB: string;
+  DiscountOnCOD: string;
+  ProductDiscountByGroup: any[];
+  PurchaseType: string;
+  PurchasedFrom: string;
+  billDate: string;
+  billNo: string;
+  bulkPackType: string;
+  createdAt: string;
+  elegibleForCredit: boolean;
+  elegibleForGoodWill: boolean;
+  expDate: string;
+  inStock: number;
+  mfgDate: string;
+  mrpWithGST: string;
+  productDiscountSlab: any[];
+  purchasePriceWithGST: string;
+  quantityPurchased: number;
+  sellerGST: string;
+  status: boolean;
+  unitsPerBulkPack: number;
+  updateAt: string;
+}
+
+export type { AddProductVarient, ProductVarient };
