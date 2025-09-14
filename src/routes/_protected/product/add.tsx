@@ -90,9 +90,10 @@ function RouteComponent() {
     watch,
     formState: { errors },
   } = form;
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [mainImageIndex, setMainImageIndex] = useState<number>(0);
 
   const watchedValues = watch();
 
@@ -136,6 +137,18 @@ function RouteComponent() {
     },
   });
 
+  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setThumbnail(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setThumbnailPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const newImages = [...images, ...files];
@@ -162,7 +175,6 @@ function RouteComponent() {
   const onSubmit = (data: ProductFormData) => {
     const formData = new FormData();
 
-    // Append text/number fields
     formData.append("name", data.name);
     if (data.description) formData.append("description", data.description);
     formData.append("categoryId", String(data.categoryId));
@@ -171,15 +183,16 @@ function RouteComponent() {
       formData.append("secondSubCategoryId", String(data.secondSubCategoryId));
     formData.append("brandId", String(data.brandId));
 
-    // Append images
-    images.forEach((image, index) => {
+    if (thumbnail) {
+      formData.append("thumbnail", thumbnail);
+    } else if (images.length > 0) {
+      formData.append("thumbnail", images[0]);
+    }
+
+    images.forEach((image) => {
       formData.append("images", image);
-      if (index === mainImageIndex) {
-        formData.append("thumbnail", image);
-      }
     });
 
-    console.log("formdata", formData);
     mutation.mutate(formData);
   };
 
@@ -187,7 +200,9 @@ function RouteComponent() {
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList>
         <TabsTrigger value="product">Product</TabsTrigger>
-        <TabsTrigger value="varient">Varient</TabsTrigger>
+        <TabsTrigger value="varient" disabled={!newProductId}>
+          Varient
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="product">
         <Form {...form}>
@@ -354,22 +369,55 @@ function RouteComponent() {
               <CardHeader>
                 <CardTitle>Product Images</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <Label htmlFor="images">Upload Images</Label>
+                  <Label>Thumbnail Image</Label>
+                  <div className="flex items-center justify-center w-full">
+                    <label
+                      htmlFor="thumbnail"
+                      className="flex flex-col items-center justify-center w-full h-48 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
+                    >
+                      {thumbnailPreview ? (
+                        <img
+                          src={thumbnailPreview}
+                          alt="Thumbnail preview"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
+                          <p className="mb-2 text-sm text-muted-foreground">
+                            <span className="font-semibold">Click to upload</span>
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            PNG, JPG, GIF up to 10MB
+                          </p>
+                        </div>
+                      )}
+                      <input
+                        id="thumbnail"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleThumbnailUpload}
+                      />
+                    </label>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Additional Images</Label>
                   <div className="flex items-center justify-center w-full">
                     <label
                       htmlFor="images"
-                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
+                      className="flex flex-col items-center justify-center w-full h-48 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
                     >
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
                         <p className="mb-2 text-sm text-muted-foreground">
-                          <span className="font-semibold">Click to upload</span>{" "}
-                          or drag and drop
+                          <span className="font-semibold">Click to upload</span>
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          PNG, JPG, GIF up to 10MB
+                          You can upload multiple images
                         </p>
                       </div>
                       <input
@@ -383,42 +431,29 @@ function RouteComponent() {
                     </label>
                   </div>
                 </div>
-
-                {imagePreviews.length > 0 && (
+              </CardContent>
+              {imagePreviews.length > 0 && (
+                <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {imagePreviews.map((preview, index) => (
-                      <div key={index} className="relative">
+                      <div key={index} className="relative group">
                         <img
                           src={preview || "/placeholder.svg"}
                           alt={`Preview ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border"
+                          className="w-full h-24 object-cover rounded-lg border transition-all group-hover:brightness-50"
                         />
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
-                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/80"
+                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-destructive text-destructive-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <X className="w-4 h-4" />
+                          <X className="w-5 h-5" />
                         </button>
-                        {mainImageIndex !== index && (
-                          <button
-                            type="button"
-                            onClick={() => setMainImageIndex(index)}
-                            className="absolute bottom-1 left-1 bg-primary text-primary-foreground text-xs px-2 py-1 rounded hover:bg-primary/80"
-                          >
-                            Set as Thumbnail
-                          </button>
-                        )}
-                        {mainImageIndex === index && (
-                          <span className="absolute bottom-1 left-1 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-                            Thumbnail
-                          </span>
-                        )}
                       </div>
                     ))}
                   </div>
-                )}
-              </CardContent>
+                </CardContent>
+              )}
             </Card>
 
             <div className="flex justify-end space-x-4">

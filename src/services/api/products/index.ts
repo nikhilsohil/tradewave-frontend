@@ -14,4 +14,16 @@ export default class ProductApi {
       payload
     );
   }
+
+  static getById(id: number) {
+    return httpClient.get<ProductResponse>(`/api/admin/product/${id}`);
+  }
+
+  static updateProduct(id: number, payload: any) {
+    return httpClient.put<ProductResponse>(
+      `/api/admin/product/${id}`,
+      payload
+    );
+  }
 }
+
