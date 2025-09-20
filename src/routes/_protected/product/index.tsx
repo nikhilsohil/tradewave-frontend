@@ -84,10 +84,10 @@ function RouteComponent() {
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
             <CardTitle>Products</CardTitle>
-            <SearchInput onClear={() => console.log("clear")} />
+            {/* <SearchInput onClear={() => console.log("clear")} /> */}
           </div>
           <div className="flex gap-2 items-center">
-            <ProductFilter />
+            {/* <ProductFilter /> */}
             <Button
               variant={"link"}
               onClick={() => router.navigate({ to: "/product/add" })}
@@ -103,10 +103,13 @@ function RouteComponent() {
             <TableHeader>
               <TableRow className="bg-muted/50">
                 <TableHead className="font-semibold">Product Name</TableHead>
-                <TableHead className="font-semibold">Price</TableHead>
-                <TableHead className="font-semibold">Stock</TableHead>
-                <TableHead className="font-semibold">Status</TableHead>
+
                 <TableHead className="font-semibold">Category</TableHead>
+                <TableHead className="font-semibold">Sub Category</TableHead>
+                <TableHead className="font-semibold">
+                  Second Sub Category
+                </TableHead>
+
                 <TableHead className="font-semibold text-right">
                   Actions
                 </TableHead>
@@ -126,19 +129,12 @@ function RouteComponent() {
                         {product.name}
                       </Link>
                     </TableCell>
-                    {/* <TableCell className="text-muted-foreground">{product.sku}</TableCell> */}
-                    <TableCell className="font-medium">
-                      ${product.price}
-                    </TableCell>
-                    <TableCell>{product.inStock || 0}</TableCell>
-                    <TableCell>
-                      <Badge variant={stockInfo.badgeVariant}>
-                        {stockInfo.text}
-                      </Badge>
-                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {product.category.name}
                     </TableCell>
+                    <TableCell>{product.secondSubCategory.name}</TableCell>
+                    <TableCell>{product.secondSubCategory.name}</TableCell>
+
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
