@@ -11,7 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
 import { Route as ProtectedStaffRouteRouteImport } from './routes/_protected/staff/route'
 import { Route as ProtectedSettingsRouteRouteImport } from './routes/_protected/settings/route'
@@ -45,9 +45,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthIndexRoute = AuthIndexRouteImport.update({
-  id: '/auth/',
-  path: '/auth/',
+const LoginIndexRoute = LoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
@@ -182,7 +182,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof ProtectedSettingsRouteRouteWithChildren
   '/staff': typeof ProtectedStaffRouteRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/auth': typeof AuthIndexRoute
+  '/login': typeof LoginIndexRoute
   '/product/$productId': typeof ProtectedProductProductIdRoute
   '/product/add': typeof ProtectedProductAddRoute
   '/brand/': typeof ProtectedBrandIndexRoute
@@ -201,7 +201,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/auth': typeof AuthIndexRoute
+  '/login': typeof LoginIndexRoute
   '/product/$productId': typeof ProtectedProductProductIdRoute
   '/product/add': typeof ProtectedProductAddRoute
   '/brand': typeof ProtectedBrandIndexRoute
@@ -230,7 +230,7 @@ export interface FileRoutesById {
   '/_protected/settings': typeof ProtectedSettingsRouteRouteWithChildren
   '/_protected/staff': typeof ProtectedStaffRouteRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/auth/': typeof AuthIndexRoute
+  '/login/': typeof LoginIndexRoute
   '/_protected/product/$productId': typeof ProtectedProductProductIdRoute
   '/_protected/product/add': typeof ProtectedProductAddRoute
   '/_protected/brand/': typeof ProtectedBrandIndexRoute
@@ -259,7 +259,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/staff'
     | '/demo/tanstack-query'
-    | '/auth'
+    | '/login'
     | '/product/$productId'
     | '/product/add'
     | '/brand/'
@@ -278,7 +278,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/demo/tanstack-query'
-    | '/auth'
+    | '/login'
     | '/product/$productId'
     | '/product/add'
     | '/brand'
@@ -306,7 +306,7 @@ export interface FileRouteTypes {
     | '/_protected/settings'
     | '/_protected/staff'
     | '/demo/tanstack-query'
-    | '/auth/'
+    | '/login/'
     | '/_protected/product/$productId'
     | '/_protected/product/add'
     | '/_protected/brand/'
@@ -327,7 +327,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProtectedRoute: typeof ProtectedRouteWithChildren
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
-  AuthIndexRoute: typeof AuthIndexRoute
+  LoginIndexRoute: typeof LoginIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -346,11 +346,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/': {
-      id: '/auth/'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthIndexRouteImport
+    '/login/': {
+      id: '/login/'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/tanstack-query': {
@@ -664,7 +664,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProtectedRoute: ProtectedRouteWithChildren,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
-  AuthIndexRoute: AuthIndexRoute,
+  LoginIndexRoute: LoginIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
