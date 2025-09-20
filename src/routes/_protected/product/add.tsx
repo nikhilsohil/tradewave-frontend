@@ -3,7 +3,7 @@ import type React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,8 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FilePenLine, Plus, Trash2, Upload, X } from "lucide-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus, Upload, X } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import CategoriesApi from "@/services/api/categories";
 import SubCategoriesApi from "@/services/api/sub-categories";
 import ProductApi from "@/services/api/products";
@@ -35,19 +35,6 @@ import {
 } from "@/components/ui/form";
 import BrandAPI from "@/services/api/brand";
 import type { Brand } from "@/services/types/brand";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VarientForm } from "@/components/products/varient-form";
-import VarientApi from "@/services/api/varients";
-import type { ProductVarient } from "@/services/types/varient";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import type { Product } from "@/services/types/products";
 
 export const Route = createFileRoute("/_protected/product/add")({
   component: RouteComponent,
@@ -59,22 +46,13 @@ const productSchema = z.object({
     .min(2, "Product name must be at least 2 characters")
     .max(100, "Product name is too long"),
   description: z.string().optional(),
-  categoryId: z.coerce
-    .number("Category is required")
-    .min(1, "Category is required"),
-  subCategoryId: z.coerce
-    .number("Sub Category is required")
-    .min(1, "Sub Category is required"),
+  categoryId: z.coerce.number().min(1, "Category is required"),
+  subCategoryId: z.coerce.number().min(1, "Sub Category is required"),
   secondSubCategoryId: z.coerce.number().optional(),
   brandId: z.coerce.number().min(1, "Brand is required"),
-  thumbnail: z.union([
-    z
-      .instanceof(File, { message: "Image is required" })
-      .refine((file) => !file || file.size !== 0 || file.size <= 5000000, {
-        message: "Max size exceeded",
-      }),
-    z.string().trim().min(1, "Image is required"), // to hold default image
-  ]),
+  thumbnail: z
+    .any()
+    .refine((file) => file instanceof File, "Thumbnail is required."),
   images: z.any().optional(),
 });
 
@@ -82,8 +60,8 @@ type ProductFormData = z.infer<typeof productSchema>;
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const [newProductId, setNewProductId] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState("product");
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const form = useForm({
     resolver: zodResolver(productSchema),
@@ -92,11 +70,7 @@ function RouteComponent() {
       description: "",
     },
   });
-  const {
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = form;
+  const { handleSubmit, watch, control } = form;
 
   const watchedValues = watch();
 
@@ -104,7 +78,6 @@ function RouteComponent() {
     queryKey: ["categories"],
     queryFn: () => CategoriesApi.getAll(),
   });
-
   const { data: brands } = useQuery({
     queryKey: ["brands"],
     queryFn: () => BrandAPI.getAll(),
@@ -127,22 +100,31 @@ function RouteComponent() {
   });
 
   const mutation = useMutation({
-    mutationFn: (formData: FormData) => {
-      return ProductApi.addProduct(formData);
-    },
-    onSuccess: (data) => {
+    mutationFn: (formData: FormData) => ProductApi.addProduct(formData),
+    onSuccess: () => {
       toast.success("Product added successfully");
-      setNewProductId(data.data.data.id);
-      setActiveTab("varient");
+      navigate({ to: "/product" });
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to add product");
-    },
+    onError: (error: any) =>
+      toast.error(error.message || "Failed to add product"),
   });
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const newImages = [...images, ...files];
+    setImages(newImages);
+
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+  };
+
+  const removeImage = (index: number) => {
+    setImages(images.filter((_, i) => i !== index));
+    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+  };
 
   const onSubmit = (data: ProductFormData) => {
     const formData = new FormData();
-
     formData.append("name", data.name);
     if (data.description) formData.append("description", data.description);
     formData.append("categoryId", String(data.categoryId));
@@ -150,308 +132,307 @@ function RouteComponent() {
     if (data.secondSubCategoryId)
       formData.append("secondSubCategoryId", String(data.secondSubCategoryId));
     formData.append("brandId", String(data.brandId));
+    formData.append("thumbnail", data.thumbnail);
+
+    images.forEach((image) => {
+      formData.append("images", image);
+    });
 
     mutation.mutate(formData);
   };
+
   const getImageSrc = (image: string | File | null) => {
-    console.log("image",image);
-    
     if (image instanceof File) {
       return URL.createObjectURL(image);
     }
-    return image; // URL string
+    return image;
   };
 
   return (
-    <>
-      <div className="h-full ">
-        <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            <div className="p-4 pt-0 flex gap-4 justify-between items-center h-fit ">
-              <div>Add Product</div>
-              <div className="flex justify-end gap-4">
-                <Button>Cancle</Button>
-                <Button type="submit" disabled={mutation.isPending}>
-                  Save
-                </Button>
-              </div>
+    <div className="h-full">
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <div className="p-4 pt-0 flex gap-4 justify-between items-center h-fit">
+            <div>Add Product</div>
+            <div className="flex justify-end gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate({ to: "/product" })}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={mutation.isPending}>
+                Save
+              </Button>
             </div>
-            <div className="grid grid-cols-6 gap-4">
-              <Card className="col-span-4">
-                <CardHeader>
-                  <CardTitle>General Infomations</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Product Name *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Product 1" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="brandId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Brand *</FormLabel>
-                          <Select onValueChange={field.onChange}>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select brand" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {brands?.data?.data.map((brand: Brand) => (
-                                <SelectItem
-                                  key={brand.id}
-                                  value={brand.id.toString()}
-                                >
-                                  {brand.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
+          </div>
+          <div className="grid grid-cols-6 gap-4">
+            <Card className="col-span-4">
+              <CardHeader>
+                <CardTitle>General Infomations</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
-                    control={form.control}
-                    name="description"
+                    control={control}
+                    name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>Product Name *</FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder="test product"
-                            rows={3}
-                            {...field}
-                          />
+                          <Input placeholder="Product 1" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="categoryId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category *</FormLabel>
-                          <Select onValueChange={field.onChange}>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {categories?.data?.data.map(
-                                (category: Categories) => (
-                                  <SelectItem
-                                    key={category.id}
-                                    value={category.id.toString()}
-                                  >
-                                    {category.name}
-                                  </SelectItem>
-                                )
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="subCategoryId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Sub Category *</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            disabled={!watchedValues.categoryId}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select sub category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {subCategories?.data?.data.map(
-                                (subCategory: SubCategories) => (
-                                  <SelectItem
-                                    key={subCategory.id}
-                                    value={subCategory.id.toString()}
-                                  >
-                                    {subCategory.name}
-                                  </SelectItem>
-                                )
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="secondSubCategoryId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Second Sub Category</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            disabled={!watchedValues.subCategoryId}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select second sub category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {secSubCategories?.data?.data.map(
-                                (secSubCategory: SecondSubCategories) => (
-                                  <SelectItem
-                                    key={secSubCategory.id}
-                                    value={secSubCategory.id.toString()}
-                                  >
-                                    {secSubCategory.name}
-                                  </SelectItem>
-                                )
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="col-span-2">
-                <CardHeader>
-                  <CardTitle>Images</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {/* Main Image Upload Area */}
                   <FormField
-                    control={form.control}
-                    name="thumbnail"
+                    control={control}
+                    name="brandId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Main Image</FormLabel>
-                        <FormControl>
-                          <div className="space-y-3">
-                            {/* Main Image Upload/Display Area */}
-                            <div className="relative">
-                              <div
-                                className={`relative border-2 border-dashed rounded-lg p-8 transition-all cursor-pointer ${
-                                  field.value
-                                    ? "border-gray-300 bg-white"
-                                    : "border-gray-300 bg-gray-50 hover:border-gray-400"
-                                }`}
-
-                                // onDragOver={(e) => handleDragOver(e, "main")}
-                                // onDragLeave={(e) => handleDragLeave(e, "main")}
-                                // onDrop={(e) => handleDrop(e, "main")}
+                        <FormLabel>Brand *</FormLabel>
+                        <Select onValueChange={field.onChange}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select brand" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {brands?.data?.data.map((brand: Brand) => (
+                              <SelectItem
+                                key={brand.id}
+                                value={brand.id.toString()}
                               >
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  className="absolute inset-0 h-full"
-                                  ref={field.ref}
-                                  onChange={(e)=>form.setValue("thumbnail",e.target.files[0])}
-                                />
-                                {field.value ? (
-                                  <div className="relative">
-                                    <img
-                                      src={getImageSrc(field.value) || ""}
-                                      alt="Main image"
-                                      className="w-full h-48 object-cover rounded-lg"
-                                    />
-
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        form.setValue("thumbnail", "");
-                                      }}
-                                      className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="flex flex-col items-center justify-center space-y-3">
-                                    <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                                      <Upload className="w-8 h-8 text-gray-400" />
-                                    </div>
-                                    <div className="text-center">
-                                      <p className="text-sm text-gray-600 mb-1">
-                                        Click to upload or drag and drop
-                                      </p>
-                                      <p className="text-xs text-gray-500">
-                                        PNG, JPG, GIF up to 10MB
-                                      </p>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* URL Input Toggle and Field */}
-                          </div>
-                        </FormControl>
+                                {brand.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  {/* Additional Images Section */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Additional Images
-                    </label>
-
-                    {/* Image Grid/List */}
-                    <div className="grid grid-cols-6 gap-3 mb-4">
-                      {/* Skeleton placeholders for additional images */}
-                      {[1, 2, 3, 4].map((index) => (
-                        <div key={index} className="relative">
-                          <div className="aspect-square bg-gray-200 rounded-lg  flex items-center justify-center border-2 border-dashed border-gray-300">
-                            <div className="w-6 h-6 bg-gray-300 rounded "></div>
+                </div>
+                <FormField
+                  control={control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="test product"
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category *</FormLabel>
+                        <Select onValueChange={field.onChange}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories?.data?.data.map(
+                              (category: Categories) => (
+                                <SelectItem
+                                  key={category.id}
+                                  value={category.id.toString()}
+                                >
+                                  {category.name}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={control}
+                    name="subCategoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sub Category *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          disabled={!watchedValues.categoryId}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select sub category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {subCategories?.data?.data.map(
+                              (subCategory: SubCategories) => (
+                                <SelectItem
+                                  key={subCategory.id}
+                                  value={subCategory.id.toString()}
+                                >
+                                  {subCategory.name}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={control}
+                    name="secondSubCategoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Second Sub Category</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          disabled={!watchedValues.subCategoryId}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select second sub category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {secSubCategories?.data?.data.map(
+                              (secSubCategory: SecondSubCategories) => (
+                                <SelectItem
+                                  key={secSubCategory.id}
+                                  value={secSubCategory.id.toString()}
+                                >
+                                  {secSubCategory.name}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="col-span-2">
+              <CardHeader>
+                <CardTitle>Images</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={control}
+                  name="thumbnail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Main Image</FormLabel>
+                      <FormControl>
+                        <div className="space-y-3">
+                          <div className="relative">
+                            <div
+                              className={`relative border-2 border-dashed rounded-lg p-8 transition-all cursor-pointer ${field.value ? "border-gray-300 bg-white" : "border-gray-300 bg-gray-50 hover:border-gray-400"}`}
+                            >
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                ref={field.ref}
+                                onChange={(e) =>
+                                  form.setValue(
+                                    "thumbnail",
+                                    e.target.files?.[0]
+                                  )
+                                }
+                              />
+                              {field.value ? (
+                                <div className="relative">
+                                  <img
+                                    src={getImageSrc(field.value) || ""}
+                                    alt="Main image"
+                                    className="w-full h-48 object-cover rounded-lg"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      form.setValue("thumbnail", undefined);
+                                    }}
+                                    className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex flex-col items-center justify-center space-y-3">
+                                  <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <Upload className="w-8 h-8 text-gray-400" />
+                                  </div>
+                                  <div className="text-center">
+                                    <p className="text-sm text-gray-600 mb-1">
+                                      Click to upload or drag and drop
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      PNG, JPG, GIF up to 10MB
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <div className="absolute top-1 right-1 w-5 h-5 bg-gray-300 rounded-full "></div>
                         </div>
-                      ))}
-
-                      {/* Add More Images Button */}
-                      <div className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-gray-400 cursor-pointer bg-gray-50 transition-colors">
-                        <Plus className="w-6 h-6 text-gray-400" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="mt-4">
+                  <Label>Additional Images</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={preview || "/placeholder.svg"}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border transition-all group-hover:brightness-50"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-destructive text-destructive-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
                       </div>
-
-                      {/* Empty slots */}
-                      <div className="aspect-square border-2 border-dashed border-gray-200 rounded-lg bg-gray-25"></div>
-                    </div>
-
-                    {/* Helper Text */}
-                    <p className="text-xs mt-3">
-                      You can upload up to 10 additional images. Supported
-                      formats: PNG, JPG, GIF
-                    </p>
+                    ))}
+                    <label
+                      htmlFor="images-upload"
+                      className="flex items-center justify-center w-full h-24 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
+                    >
+                      <div className="flex flex-col items-center justify-center">
+                        <Upload className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <input
+                        id="images-upload"
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          </form>
-        </Form>
-      </div>
-    </>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }
