@@ -36,6 +36,7 @@ function RouteComponent() {
         <CardTitle>Product Variants</CardTitle>
         <Link
           to="/product/varients/add/$productId"
+          params={{ productId }}
           //  onClick={() => setShowAddForm(true)}
         >
           <Button>Add Variant</Button>
@@ -66,7 +67,14 @@ function RouteComponent() {
             ) : (
               variants?.map((variant: ProductVarient) => (
                 <TableRow key={variant.id}>
-                  <TableCell>{variant.code}</TableCell>
+                  <TableCell>
+                    <Link
+                      to="/product/varients/edit/$varientId"
+                      params={{ varientId: variant.id.toString() }}
+                    >
+                      {variant.code}
+                    </Link>
+                  </TableCell>
                   <TableCell>{variant.name}</TableCell>
                   <TableCell>{variant.mrpWithGST}</TableCell>
                   <TableCell>{variant.purchasePriceWithGST}</TableCell>
@@ -78,12 +86,13 @@ function RouteComponent() {
                   </TableCell>
                   <TableCell className="min-w-[100px]">
                     <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingVariant(variant)}
-                      >
-                        <FilePenLine className="h-4 w-4" />
+                      <Button variant="ghost" size="icon">
+                        <Link
+                          to="/product/varients/edit/$varientId"
+                          params={{ varientId: variant.id.toString() }}
+                        >
+                          <FilePenLine className="h-4 w-4" />
+                        </Link>
                       </Button>
                       <Button
                         variant="ghost"
@@ -94,7 +103,7 @@ function RouteComponent() {
                               "Are you sure you want to delete this variant?"
                             )
                           ) {
-                            deleteMutation.mutate(variant.id);
+                            // deleteMutation.mutate(variant.id);
                           }
                         }}
                       >

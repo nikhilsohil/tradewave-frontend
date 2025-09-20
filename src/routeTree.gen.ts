@@ -33,6 +33,7 @@ import { Route as ProtectedProductAddRouteImport } from './routes/_protected/pro
 import { Route as ProtectedProductProductIdRouteImport } from './routes/_protected/product/$productId'
 import { Route as ProtectedRetailerRetailerIdRouteImport } from './routes/_protected/retailer/retailer.$id'
 import { Route as ProtectedProductVarientsProductIdRouteImport } from './routes/_protected/product/varients/$productId'
+import { Route as ProtectedProductVarientsEditVarientIdRouteImport } from './routes/_protected/product/varients/edit.$varientId'
 import { Route as ProtectedProductVarientsAddProductIdRouteImport } from './routes/_protected/product/varients/add.$productId'
 
 const ProtectedRoute = ProtectedRouteImport.update({
@@ -157,6 +158,12 @@ const ProtectedProductVarientsProductIdRoute =
     path: '/varients/$productId',
     getParentRoute: () => ProtectedProductRouteRoute,
   } as any)
+const ProtectedProductVarientsEditVarientIdRoute =
+  ProtectedProductVarientsEditVarientIdRouteImport.update({
+    id: '/varients/edit/$varientId',
+    path: '/varients/edit/$varientId',
+    getParentRoute: () => ProtectedProductRouteRoute,
+  } as any)
 const ProtectedProductVarientsAddProductIdRoute =
   ProtectedProductVarientsAddProductIdRouteImport.update({
     id: '/varients/add/$productId',
@@ -189,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/product/varients/$productId': typeof ProtectedProductVarientsProductIdRoute
   '/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
   '/product/varients/add/$productId': typeof ProtectedProductVarientsAddProductIdRoute
+  '/product/varients/edit/$varientId': typeof ProtectedProductVarientsEditVarientIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -207,6 +215,7 @@ export interface FileRoutesByTo {
   '/product/varients/$productId': typeof ProtectedProductVarientsProductIdRoute
   '/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
   '/product/varients/add/$productId': typeof ProtectedProductVarientsAddProductIdRoute
+  '/product/varients/edit/$varientId': typeof ProtectedProductVarientsEditVarientIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -235,6 +244,7 @@ export interface FileRoutesById {
   '/_protected/product/varients/$productId': typeof ProtectedProductVarientsProductIdRoute
   '/_protected/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
   '/_protected/product/varients/add/$productId': typeof ProtectedProductVarientsAddProductIdRoute
+  '/_protected/product/varients/edit/$varientId': typeof ProtectedProductVarientsEditVarientIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
     | '/product/varients/$productId'
     | '/retailer/retailer/$id'
     | '/product/varients/add/$productId'
+    | '/product/varients/edit/$varientId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/product/varients/$productId'
     | '/retailer/retailer/$id'
     | '/product/varients/add/$productId'
+    | '/product/varients/edit/$varientId'
   id:
     | '__root__'
     | '/'
@@ -308,6 +320,7 @@ export interface FileRouteTypes {
     | '/_protected/product/varients/$productId'
     | '/_protected/retailer/retailer/$id'
     | '/_protected/product/varients/add/$productId'
+    | '/_protected/product/varients/edit/$varientId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -487,6 +500,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedProductVarientsProductIdRouteImport
       parentRoute: typeof ProtectedProductRouteRoute
     }
+    '/_protected/product/varients/edit/$varientId': {
+      id: '/_protected/product/varients/edit/$varientId'
+      path: '/varients/edit/$varientId'
+      fullPath: '/product/varients/edit/$varientId'
+      preLoaderRoute: typeof ProtectedProductVarientsEditVarientIdRouteImport
+      parentRoute: typeof ProtectedProductRouteRoute
+    }
     '/_protected/product/varients/add/$productId': {
       id: '/_protected/product/varients/add/$productId'
       path: '/varients/add/$productId'
@@ -553,6 +573,7 @@ interface ProtectedProductRouteRouteChildren {
   ProtectedProductIndexRoute: typeof ProtectedProductIndexRoute
   ProtectedProductVarientsProductIdRoute: typeof ProtectedProductVarientsProductIdRoute
   ProtectedProductVarientsAddProductIdRoute: typeof ProtectedProductVarientsAddProductIdRoute
+  ProtectedProductVarientsEditVarientIdRoute: typeof ProtectedProductVarientsEditVarientIdRoute
 }
 
 const ProtectedProductRouteRouteChildren: ProtectedProductRouteRouteChildren = {
@@ -563,6 +584,8 @@ const ProtectedProductRouteRouteChildren: ProtectedProductRouteRouteChildren = {
     ProtectedProductVarientsProductIdRoute,
   ProtectedProductVarientsAddProductIdRoute:
     ProtectedProductVarientsAddProductIdRoute,
+  ProtectedProductVarientsEditVarientIdRoute:
+    ProtectedProductVarientsEditVarientIdRoute,
 }
 
 const ProtectedProductRouteRouteWithChildren =
