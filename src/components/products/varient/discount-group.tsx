@@ -11,6 +11,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -18,58 +25,56 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import ProductApi from "@/services/api/products";
-import SlabDiscountAPI from "@/services/api/slabDiscountAPI";
-import VarientApi from "@/services/api/varients";
+import GroupAPI from "@/services/api/group";
+import GroupDiscountAPi from "@/services/api/group-discountAPI";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogTitle } from "@radix-ui/react-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { FilePenLine, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const groupSchema = z.object({
+const Schema = z.object({
   id: z.union([z.string(), z.number()]).optional(),
-  minQuantity: z.coerce.number().min(1, "Min quantity is required"),
-  maxQuantity: z.coerce.number().optional(),
+  retailerGroupId: z.coerce
+    .number("Please select a group")
+    .int("Please select a group"),
   discount: z.coerce.number().min(1, "Discount is required"),
 });
 
-type SchemaType = z.infer<typeof groupSchema>;
-function DiscountSlab({ varientId }: { varientId: number }) {
+type SchemaType = z.infer<typeof Schema>;
+function DiscountGroup({ varientId }: { varientId: number }) {
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const form = useForm({
-    resolver: zodResolver(groupSchema),
+    resolver: zodResolver(Schema),
     defaultValues: {
       id: "",
-      minQuantity: "",
-      maxQuantity: "",
+      retailerGroupId: "",
       discount: "",
     },
   });
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["slab-discount", varientId],
-    queryFn: () => SlabDiscountAPI.getAll(varientId),
+    queryKey: ["group-discount", varientId],
+    queryFn: () => GroupDiscountAPi.getAll(varientId),
     enabled: !!varientId,
   });
   const handleSubmit = async (data: SchemaType) => {
     try {
       let response;
       const payload = {
-        minQuantity: data.minQuantity,
-        maxQuantity: data.maxQuantity || null,
+        retailerGroupId: data.retailerGroupId,
         discount: data.discount,
       };
 
       if (edit) {
-        response = await SlabDiscountAPI.update(data.id, payload);
+        response = await GroupDiscountAPi.update(data.id, payload);
       } else {
         console.log("payloadcreate", payload);
-        response = await VarientApi.addSlabDiscount(varientId, payload);
+        response = await GroupDiscountAPi.create(varientId, payload);
         toast.success(response?.data?.message || "Group created successfully");
       }
       refetch();
@@ -84,20 +89,21 @@ function DiscountSlab({ varientId }: { varientId: number }) {
 
   const deleteGroup = async (id: number) => {
     try {
-      const response = await SlabDiscountAPI.delete(id);
-      toast.success(response?.data?.message || "Group deleted successfully");
+      const response = await GroupDiscountAPi.delete(id);
+      toast.success(
+        response?.data?.message || "Group Discount deleted successfully"
+      );
       refetch();
     } catch (error: any) {
       const message =
-        error?.response?.data?.message || "Failed to delete group.";
+        error?.response?.data?.message || "Failed to delete Discount Group.";
       toast.error(message);
     }
   };
 
   const handelEdit = (slab: SchemaType) => {
     form.setValue("id", slab.id);
-    form.setValue("minQuantity", slab.minQuantity);
-    form.setValue("maxQuantity", slab.maxQuantity);
+    form.setValue("retailerGroupId", slab.retailerGroupId);
     form.setValue("discount", slab.discount);
     setEdit(true);
     setOpen(true);
@@ -108,15 +114,19 @@ function DiscountSlab({ varientId }: { varientId: number }) {
     setEdit(false);
     form.reset();
   };
-
   const isSubmitting = form.formState.isSubmitting;
   const slabs = data?.data?.data || [];
+
+  const { data: retailerGroups, isLoading: areGroupsLoading } = useQuery({
+    queryKey: ["groups"],
+    queryFn: () => GroupAPI.getAll(),
+  });
   return (
     <>
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
-            <CardTitle>Good Will Discount Slab</CardTitle>
+            <CardTitle>Group Discount</CardTitle>
             <Plus onClick={() => setOpen(true)} />
           </div>
         </CardHeader>
@@ -124,8 +134,7 @@ function DiscountSlab({ varientId }: { varientId: number }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Min</TableHead>
-                <TableHead>Max</TableHead>
+                <TableHead>Group</TableHead>
                 <TableHead>Discount</TableHead>
                 <TableHead className="max-w-10"></TableHead>
               </TableRow>
@@ -133,8 +142,7 @@ function DiscountSlab({ varientId }: { varientId: number }) {
             <TableBody>
               {slabs.map((slab) => (
                 <TableRow key={slab.id}>
-                  <TableCell>{slab.minQuantity || "-"}</TableCell>
-                  <TableCell>{slab.maxQuantity || "-"}</TableCell>
+                  <TableCell>{slab?.retailerGroup?.name || "-"}</TableCell>
                   <TableCell>{slab.discount || "-"}</TableCell>
                   <TableCell className="max-w-10">
                     <div className="flex items-center gap-2">
@@ -171,7 +179,7 @@ function DiscountSlab({ varientId }: { varientId: number }) {
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add New Group</DialogTitle>
+            <DialogTitle>Add Discount</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form
@@ -180,34 +188,29 @@ function DiscountSlab({ varientId }: { varientId: number }) {
             >
               <FormField
                 control={form.control}
-                name="minQuantity"
+                name={"retailerGroupId"}
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Min </FormLabel>
+                  <FormItem className="flex-1">
+                    <FormLabel>Retailer Group</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter Min Quantity..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="maxQuantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter Max Quantity..."
-                        {...field}
-                      />
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value?.toString()}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a group" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {retailerGroups?.data.data.map((group: Group) => (
+                            <SelectItem
+                              key={group.id}
+                              value={group.id.toString()}
+                            >
+                              {group.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -254,4 +257,4 @@ function DiscountSlab({ varientId }: { varientId: number }) {
   );
 }
 
-export default DiscountSlab;
+export default DiscountGroup;
