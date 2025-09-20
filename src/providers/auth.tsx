@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Encode the path and query parameters
     const redirectUrl = encodeURIComponent(currentPathWithParams);
     // Add query params to the login URL
-    window.location.href = `/auth?redirect=${redirectUrl}`;
+    window.location.href = `/login?redirect=${redirectUrl}`;
   }, []);
 
   const login = React.useCallback(async (payload: LoginData) => {
