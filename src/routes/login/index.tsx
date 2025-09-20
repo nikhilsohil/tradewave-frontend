@@ -39,7 +39,7 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export const Route = createFileRoute("/auth/")({
+export const Route = createFileRoute("/login/")({
   component: LoginPage,
   loader: ({ context }) => {
     const auth = context.auth;

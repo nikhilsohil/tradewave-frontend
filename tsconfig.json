@@ -4,7 +4,7 @@
     "**/*.tsx",
     "**/*.js",
     "**/*.jsx",
-    "src/routes/auth/index.tsx"
+    "src/routes/login/index.tsx"
   ],
   "compilerOptions": {
     "target": "ES2022",
