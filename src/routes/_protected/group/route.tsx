@@ -13,7 +13,7 @@ function RouteComponent() {
       <AppHeader
         topNav={
           <TopNav>
-            <CustomLink to="/group">Products</CustomLink>
+            {/* The Group page is now part of the Settings page. */}
           </TopNav>
         }
       />

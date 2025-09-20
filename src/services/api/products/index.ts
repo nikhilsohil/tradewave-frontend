@@ -22,3 +22,5 @@ export default class ProductApi {
     return httpClient.put<ProductResponse>(`/api/admin/product/${id}`, payload);
   }
 }
+
+
