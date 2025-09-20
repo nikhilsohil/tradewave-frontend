@@ -52,6 +52,7 @@
     "zod": "^4.0.16"
   },
   "devDependencies": {
+    "rollup": "^4.24.0",
     "@tanstack/eslint-plugin-router": "^1.131.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
