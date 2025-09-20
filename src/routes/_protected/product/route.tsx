@@ -9,13 +9,31 @@ export const Route = createFileRoute("/_protected/product")({
 });
 
 function RouteComponent() {
+  const { productId } = Route.useParams();
+
   return (
     <>
       <AppHeader
         topNav={
           <TopNav>
-            <CustomLink to="/product">Products</CustomLink>
-            <CustomLink to="/product/add">Variants</CustomLink>
+            {!productId ? (
+              <CustomLink to="/product">Products</CustomLink>
+            ) : (
+              <>
+                <CustomLink
+                  to="/product/$productId"
+                  params={{ productId: productId }}
+                >
+                  Basic Info
+                </CustomLink>
+                <CustomLink
+                  to="/product/varients/$productId"
+                  params={{ productId: productId }}
+                >
+                  Varients
+                </CustomLink>
+              </>
+            )}
           </TopNav>
         }
       />

@@ -1,13 +1,14 @@
 import type { AddProductVarient, ProductVarient } from "@/services/types/varient";
 
 import httpClient from "../../config";
+import type { BaseResponse } from "@/services/types/base";
 
 const VarientApi = {
   addVarient: async (data: AddProductVarient) => {
     return await httpClient.post("/api/admin/product-varient", data);
   },
-  getVariantsByProductId: async (productId: number) => {
-    return await httpClient.get(`/api/admin/product/varient/${productId}`);
+  getVariantsByProductId: async (productId: string|number) => {
+    return await httpClient.get<BaseResponse<ProductVarient[]>>(`/api/admin/product/varient/${productId}`);
   },
   updateVarient: async (id: number, data: ProductVarient) => {
     return await httpClient.put(`/api/admin/product-varient/${id}`, data);
