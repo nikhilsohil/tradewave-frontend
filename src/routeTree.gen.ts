@@ -31,10 +31,9 @@ import { Route as ProtectedCategoryIndexRouteImport } from './routes/_protected/
 import { Route as ProtectedBrandIndexRouteImport } from './routes/_protected/brand/index'
 import { Route as ProtectedProductAddRouteImport } from './routes/_protected/product/add'
 import { Route as ProtectedProductProductIdRouteImport } from './routes/_protected/product/$productId'
-import { Route as ProtectedProductProductIdIndexRouteImport } from './routes/_protected/product/$productId/index'
 import { Route as ProtectedRetailerRetailerIdRouteImport } from './routes/_protected/retailer/retailer.$id'
 import { Route as ProtectedProductVarientsProductIdRouteImport } from './routes/_protected/product/varients/$productId'
-import { Route as ProtectedProductProductIdVarientsRouteImport } from './routes/_protected/product/$productId/varients'
+import { Route as ProtectedProductVarientsAddProductIdRouteImport } from './routes/_protected/product/varients/add.$productId'
 
 const ProtectedRoute = ProtectedRouteImport.update({
   id: '/_protected',
@@ -146,12 +145,6 @@ const ProtectedProductProductIdRoute =
     path: '/$productId',
     getParentRoute: () => ProtectedProductRouteRoute,
   } as any)
-const ProtectedProductProductIdIndexRoute =
-  ProtectedProductProductIdIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => ProtectedProductProductIdRoute,
-  } as any)
 const ProtectedRetailerRetailerIdRoute =
   ProtectedRetailerRetailerIdRouteImport.update({
     id: '/retailer/$id',
@@ -164,11 +157,11 @@ const ProtectedProductVarientsProductIdRoute =
     path: '/varients/$productId',
     getParentRoute: () => ProtectedProductRouteRoute,
   } as any)
-const ProtectedProductProductIdVarientsRoute =
-  ProtectedProductProductIdVarientsRouteImport.update({
-    id: '/varients',
-    path: '/varients',
-    getParentRoute: () => ProtectedProductProductIdRoute,
+const ProtectedProductVarientsAddProductIdRoute =
+  ProtectedProductVarientsAddProductIdRouteImport.update({
+    id: '/varients/add/$productId',
+    path: '/varients/add/$productId',
+    getParentRoute: () => ProtectedProductRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -183,7 +176,7 @@ export interface FileRoutesByFullPath {
   '/staff': typeof ProtectedStaffRouteRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth': typeof AuthIndexRoute
-  '/product/$productId': typeof ProtectedProductProductIdRouteWithChildren
+  '/product/$productId': typeof ProtectedProductProductIdRoute
   '/product/add': typeof ProtectedProductAddRoute
   '/brand/': typeof ProtectedBrandIndexRoute
   '/category/': typeof ProtectedCategoryIndexRoute
@@ -193,15 +186,15 @@ export interface FileRoutesByFullPath {
   '/retailer/': typeof ProtectedRetailerIndexRoute
   '/settings/': typeof ProtectedSettingsIndexRoute
   '/staff/': typeof ProtectedStaffIndexRoute
-  '/product/$productId/varients': typeof ProtectedProductProductIdVarientsRoute
   '/product/varients/$productId': typeof ProtectedProductVarientsProductIdRoute
   '/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
-  '/product/$productId/': typeof ProtectedProductProductIdIndexRoute
+  '/product/varients/add/$productId': typeof ProtectedProductVarientsAddProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth': typeof AuthIndexRoute
+  '/product/$productId': typeof ProtectedProductProductIdRoute
   '/product/add': typeof ProtectedProductAddRoute
   '/brand': typeof ProtectedBrandIndexRoute
   '/category': typeof ProtectedCategoryIndexRoute
@@ -211,10 +204,9 @@ export interface FileRoutesByTo {
   '/retailer': typeof ProtectedRetailerIndexRoute
   '/settings': typeof ProtectedSettingsIndexRoute
   '/staff': typeof ProtectedStaffIndexRoute
-  '/product/$productId/varients': typeof ProtectedProductProductIdVarientsRoute
   '/product/varients/$productId': typeof ProtectedProductVarientsProductIdRoute
   '/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
-  '/product/$productId': typeof ProtectedProductProductIdIndexRoute
+  '/product/varients/add/$productId': typeof ProtectedProductVarientsAddProductIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -230,7 +222,7 @@ export interface FileRoutesById {
   '/_protected/staff': typeof ProtectedStaffRouteRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/auth/': typeof AuthIndexRoute
-  '/_protected/product/$productId': typeof ProtectedProductProductIdRouteWithChildren
+  '/_protected/product/$productId': typeof ProtectedProductProductIdRoute
   '/_protected/product/add': typeof ProtectedProductAddRoute
   '/_protected/brand/': typeof ProtectedBrandIndexRoute
   '/_protected/category/': typeof ProtectedCategoryIndexRoute
@@ -240,10 +232,9 @@ export interface FileRoutesById {
   '/_protected/retailer/': typeof ProtectedRetailerIndexRoute
   '/_protected/settings/': typeof ProtectedSettingsIndexRoute
   '/_protected/staff/': typeof ProtectedStaffIndexRoute
-  '/_protected/product/$productId/varients': typeof ProtectedProductProductIdVarientsRoute
   '/_protected/product/varients/$productId': typeof ProtectedProductVarientsProductIdRoute
   '/_protected/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
-  '/_protected/product/$productId/': typeof ProtectedProductProductIdIndexRoute
+  '/_protected/product/varients/add/$productId': typeof ProtectedProductVarientsAddProductIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -269,15 +260,15 @@ export interface FileRouteTypes {
     | '/retailer/'
     | '/settings/'
     | '/staff/'
-    | '/product/$productId/varients'
     | '/product/varients/$productId'
     | '/retailer/retailer/$id'
-    | '/product/$productId/'
+    | '/product/varients/add/$productId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/demo/tanstack-query'
     | '/auth'
+    | '/product/$productId'
     | '/product/add'
     | '/brand'
     | '/category'
@@ -287,10 +278,9 @@ export interface FileRouteTypes {
     | '/retailer'
     | '/settings'
     | '/staff'
-    | '/product/$productId/varients'
     | '/product/varients/$productId'
     | '/retailer/retailer/$id'
-    | '/product/$productId'
+    | '/product/varients/add/$productId'
   id:
     | '__root__'
     | '/'
@@ -315,10 +305,9 @@ export interface FileRouteTypes {
     | '/_protected/retailer/'
     | '/_protected/settings/'
     | '/_protected/staff/'
-    | '/_protected/product/$productId/varients'
     | '/_protected/product/varients/$productId'
     | '/_protected/retailer/retailer/$id'
-    | '/_protected/product/$productId/'
+    | '/_protected/product/varients/add/$productId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -484,13 +473,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedProductProductIdRouteImport
       parentRoute: typeof ProtectedProductRouteRoute
     }
-    '/_protected/product/$productId/': {
-      id: '/_protected/product/$productId/'
-      path: '/'
-      fullPath: '/product/$productId/'
-      preLoaderRoute: typeof ProtectedProductProductIdIndexRouteImport
-      parentRoute: typeof ProtectedProductProductIdRoute
-    }
     '/_protected/retailer/retailer/$id': {
       id: '/_protected/retailer/retailer/$id'
       path: '/retailer/$id'
@@ -505,12 +487,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedProductVarientsProductIdRouteImport
       parentRoute: typeof ProtectedProductRouteRoute
     }
-    '/_protected/product/$productId/varients': {
-      id: '/_protected/product/$productId/varients'
-      path: '/varients'
-      fullPath: '/product/$productId/varients'
-      preLoaderRoute: typeof ProtectedProductProductIdVarientsRouteImport
-      parentRoute: typeof ProtectedProductProductIdRoute
+    '/_protected/product/varients/add/$productId': {
+      id: '/_protected/product/varients/add/$productId'
+      path: '/varients/add/$productId'
+      fullPath: '/product/varients/add/$productId'
+      preLoaderRoute: typeof ProtectedProductVarientsAddProductIdRouteImport
+      parentRoute: typeof ProtectedProductRouteRoute
     }
   }
 }
@@ -565,36 +547,22 @@ const ProtectedGroupRouteRouteChildren: ProtectedGroupRouteRouteChildren = {
 const ProtectedGroupRouteRouteWithChildren =
   ProtectedGroupRouteRoute._addFileChildren(ProtectedGroupRouteRouteChildren)
 
-interface ProtectedProductProductIdRouteChildren {
-  ProtectedProductProductIdVarientsRoute: typeof ProtectedProductProductIdVarientsRoute
-  ProtectedProductProductIdIndexRoute: typeof ProtectedProductProductIdIndexRoute
-}
-
-const ProtectedProductProductIdRouteChildren: ProtectedProductProductIdRouteChildren =
-  {
-    ProtectedProductProductIdVarientsRoute:
-      ProtectedProductProductIdVarientsRoute,
-    ProtectedProductProductIdIndexRoute: ProtectedProductProductIdIndexRoute,
-  }
-
-const ProtectedProductProductIdRouteWithChildren =
-  ProtectedProductProductIdRoute._addFileChildren(
-    ProtectedProductProductIdRouteChildren,
-  )
-
 interface ProtectedProductRouteRouteChildren {
-  ProtectedProductProductIdRoute: typeof ProtectedProductProductIdRouteWithChildren
+  ProtectedProductProductIdRoute: typeof ProtectedProductProductIdRoute
   ProtectedProductAddRoute: typeof ProtectedProductAddRoute
   ProtectedProductIndexRoute: typeof ProtectedProductIndexRoute
   ProtectedProductVarientsProductIdRoute: typeof ProtectedProductVarientsProductIdRoute
+  ProtectedProductVarientsAddProductIdRoute: typeof ProtectedProductVarientsAddProductIdRoute
 }
 
 const ProtectedProductRouteRouteChildren: ProtectedProductRouteRouteChildren = {
-  ProtectedProductProductIdRoute: ProtectedProductProductIdRouteWithChildren,
+  ProtectedProductProductIdRoute: ProtectedProductProductIdRoute,
   ProtectedProductAddRoute: ProtectedProductAddRoute,
   ProtectedProductIndexRoute: ProtectedProductIndexRoute,
   ProtectedProductVarientsProductIdRoute:
     ProtectedProductVarientsProductIdRoute,
+  ProtectedProductVarientsAddProductIdRoute:
+    ProtectedProductVarientsAddProductIdRoute,
 }
 
 const ProtectedProductRouteRouteWithChildren =

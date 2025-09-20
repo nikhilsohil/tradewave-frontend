@@ -1,6 +1,4 @@
-import {
-  createFileRoute
-} from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FilePenLine, Trash2 } from "lucide-react";
@@ -36,11 +34,12 @@ function RouteComponent() {
     <Card className="h-full">
       <CardHeader className=" flex flex-row items-center justify-between">
         <CardTitle>Product Variants</CardTitle>
-        <Button
-        //  onClick={() => setShowAddForm(true)}
+        <Link
+          to="/product/varients/add/$productId"
+          //  onClick={() => setShowAddForm(true)}
         >
-          Add Variant
-        </Button>
+          <Button>Add Variant</Button>
+        </Link>
       </CardHeader>
       <CardContent className="flex-grow">
         <Table>
@@ -109,7 +108,9 @@ function RouteComponent() {
           </TableBody>
         </Table>
 
-        {!isLoading && variants.length === 0 && <NoDataFound className="h-full"/>}
+        {!isLoading && variants.length === 0 && (
+          <NoDataFound className="h-full" />
+        )}
       </CardContent>
     </Card>
   );
