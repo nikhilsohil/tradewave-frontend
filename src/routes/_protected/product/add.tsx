@@ -67,7 +67,7 @@ const productSchema = z.object({
     .min(1, "Sub Category is required"),
   secondSubCategoryId: z.coerce.number().optional(),
   brandId: z.coerce.number().min(1, "Brand is required"),
-  image: z.union([
+  thumbnail: z.union([
     z
       .instanceof(File, { message: "Image is required" })
       .refine((file) => !file || file.size !== 0 || file.size <= 5000000, {
@@ -153,27 +153,35 @@ function RouteComponent() {
 
     mutation.mutate(formData);
   };
+  const getImageSrc = (image: string | File | null) => {
+    console.log("image",image);
+    
+    if (image instanceof File) {
+      return URL.createObjectURL(image);
+    }
+    return image; // URL string
+  };
 
   return (
     <>
       <div className="h-full ">
-        <div className="p-4 pt-0 flex gap-4 justify-between items-center h-fit ">
-          <div>Add Product</div>
-          <div className="flex justify-end gap-4">
-            <Button>Cancle</Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              Save
-            </Button>
-          </div>
-        </div>
-        <div className="grid grid-cols-6 gap-4">
-          <Card className="col-span-4">
-            <CardHeader>
-              <CardTitle>General Infomations</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <div className="p-4 pt-0 flex gap-4 justify-between items-center h-fit ">
+              <div>Add Product</div>
+              <div className="flex justify-end gap-4">
+                <Button>Cancle</Button>
+                <Button type="submit" disabled={mutation.isPending}>
+                  Save
+                </Button>
+              </div>
+            </div>
+            <div className="grid grid-cols-6 gap-4">
+              <Card className="col-span-4">
+                <CardHeader>
+                  <CardTitle>General Infomations</CardTitle>
+                </CardHeader>
+                <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -324,73 +332,125 @@ function RouteComponent() {
                       )}
                     />
                   </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-          <Card className="col-span-2">
-            <CardHeader>
-              <CardTitle>Images</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Main Image Upload Area */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">
-                  Main Image
-                </label>
-                <div className="relative border-2 border-dashed border-muted rounded-lg p-8 hover:border-gray-400 transition-colors cursor-pointer bg-muted/50">
-                  <div className="flex flex-col items-center justify-center space-y-3">
-                    <div className="w-16 h-16  rounded-lg flex items-center justify-center">
-                      <Upload className="w-8 h-8" />
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Click to upload or drag and drop
-                      </p>
-                      <p className="text-xs text-muted-foreground/45">
-                        PNG, JPG, GIF up to 10MB
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
+              <Card className="col-span-2">
+                <CardHeader>
+                  <CardTitle>Images</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* Main Image Upload Area */}
+                  <FormField
+                    control={form.control}
+                    name="thumbnail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Main Image</FormLabel>
+                        <FormControl>
+                          <div className="space-y-3">
+                            {/* Main Image Upload/Display Area */}
+                            <div className="relative">
+                              <div
+                                className={`relative border-2 border-dashed rounded-lg p-8 transition-all cursor-pointer ${
+                                  field.value
+                                    ? "border-gray-300 bg-white"
+                                    : "border-gray-300 bg-gray-50 hover:border-gray-400"
+                                }`}
 
-              {/* Additional Images Section */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Additional Images
-                </label>
+                                // onDragOver={(e) => handleDragOver(e, "main")}
+                                // onDragLeave={(e) => handleDragLeave(e, "main")}
+                                // onDrop={(e) => handleDrop(e, "main")}
+                              >
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="absolute inset-0 h-full"
+                                  ref={field.ref}
+                                  onChange={(e)=>form.setValue("thumbnail",e.target.files[0])}
+                                />
+                                {field.value ? (
+                                  <div className="relative">
+                                    <img
+                                      src={getImageSrc(field.value) || ""}
+                                      alt="Main image"
+                                      className="w-full h-48 object-cover rounded-lg"
+                                    />
 
-                {/* Image Grid/List */}
-                <div className="grid grid-cols-6 gap-3 mb-4">
-                  {/* Skeleton placeholders for additional images */}
-                  {[1, 2, 3, 4].map((index) => (
-                    <div key={index} className="relative">
-                      <div className="aspect-square bg-gray-200 rounded-lg  flex items-center justify-center border-2 border-dashed border-gray-300">
-                        <div className="w-6 h-6 bg-gray-300 rounded "></div>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        form.setValue("thumbnail", "");
+                                      }}
+                                      className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="flex flex-col items-center justify-center space-y-3">
+                                    <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                      <Upload className="w-8 h-8 text-gray-400" />
+                                    </div>
+                                    <div className="text-center">
+                                      <p className="text-sm text-gray-600 mb-1">
+                                        Click to upload or drag and drop
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        PNG, JPG, GIF up to 10MB
+                                      </p>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* URL Input Toggle and Field */}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Additional Images Section */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Additional Images
+                    </label>
+
+                    {/* Image Grid/List */}
+                    <div className="grid grid-cols-6 gap-3 mb-4">
+                      {/* Skeleton placeholders for additional images */}
+                      {[1, 2, 3, 4].map((index) => (
+                        <div key={index} className="relative">
+                          <div className="aspect-square bg-gray-200 rounded-lg  flex items-center justify-center border-2 border-dashed border-gray-300">
+                            <div className="w-6 h-6 bg-gray-300 rounded "></div>
+                          </div>
+                          <div className="absolute top-1 right-1 w-5 h-5 bg-gray-300 rounded-full "></div>
+                        </div>
+                      ))}
+
+                      {/* Add More Images Button */}
+                      <div className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-gray-400 cursor-pointer bg-gray-50 transition-colors">
+                        <Plus className="w-6 h-6 text-gray-400" />
                       </div>
-                      <div className="absolute top-1 right-1 w-5 h-5 bg-gray-300 rounded-full "></div>
+
+                      {/* Empty slots */}
+                      <div className="aspect-square border-2 border-dashed border-gray-200 rounded-lg bg-gray-25"></div>
                     </div>
-                  ))}
 
-                  {/* Add More Images Button */}
-                  <div className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-gray-400 cursor-pointer bg-gray-50 transition-colors">
-                    <Plus className="w-6 h-6 text-gray-400" />
+                    {/* Helper Text */}
+                    <p className="text-xs mt-3">
+                      You can upload up to 10 additional images. Supported
+                      formats: PNG, JPG, GIF
+                    </p>
                   </div>
-
-                  {/* Empty slots */}
-                  <div className="aspect-square border-2 border-dashed border-gray-200 rounded-lg bg-gray-25"></div>
-                </div>
-
-                {/* Helper Text */}
-                <p className="text-xs mt-3">
-                  You can upload up to 10 additional images. Supported formats:
-                  PNG, JPG, GIF
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                </CardContent>
+              </Card>
+            </div>
+          </form>
+        </Form>
       </div>
     </>
   );
