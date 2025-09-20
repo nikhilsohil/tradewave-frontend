@@ -59,7 +59,9 @@ const groupSchema = z.object({
   }),
 });
 
-export default function RouteComponent() {
+export default function RouteComponent({
+  className,
+}: React.ComponentProps<"div">) {
   const [open, setOpen] = useState(false);
 
   const { data, refetch } = useQuery({
@@ -135,7 +137,7 @@ export default function RouteComponent() {
 
   return (
     <>
-      <Card>
+      <Card className={className}>
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-xl">Groups</CardTitle>

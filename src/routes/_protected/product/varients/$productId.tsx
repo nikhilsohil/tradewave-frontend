@@ -1,6 +1,4 @@
-import {
-  createFileRoute
-} from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FilePenLine, Trash2 } from "lucide-react";
@@ -36,11 +34,13 @@ function RouteComponent() {
     <Card className="h-full">
       <CardHeader className=" flex flex-row items-center justify-between">
         <CardTitle>Product Variants</CardTitle>
-        <Button
-        //  onClick={() => setShowAddForm(true)}
+        <Link
+          to="/product/varients/add/$productId"
+          params={{ productId }}
+          //  onClick={() => setShowAddForm(true)}
         >
-          Add Variant
-        </Button>
+          <Button>Add Variant</Button>
+        </Link>
       </CardHeader>
       <CardContent className="flex-grow">
         <Table>
@@ -67,7 +67,14 @@ function RouteComponent() {
             ) : (
               variants?.map((variant: ProductVarient) => (
                 <TableRow key={variant.id}>
-                  <TableCell>{variant.code}</TableCell>
+                  <TableCell>
+                    <Link
+                      to="/product/varients/edit/$varientId"
+                      params={{ varientId: variant.id.toString() }}
+                    >
+                      {variant.code}
+                    </Link>
+                  </TableCell>
                   <TableCell>{variant.name}</TableCell>
                   <TableCell>{variant.mrpWithGST}</TableCell>
                   <TableCell>{variant.purchasePriceWithGST}</TableCell>
@@ -79,12 +86,13 @@ function RouteComponent() {
                   </TableCell>
                   <TableCell className="min-w-[100px]">
                     <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingVariant(variant)}
-                      >
-                        <FilePenLine className="h-4 w-4" />
+                      <Button variant="ghost" size="icon">
+                        <Link
+                          to="/product/varients/edit/$varientId"
+                          params={{ varientId: variant.id.toString() }}
+                        >
+                          <FilePenLine className="h-4 w-4" />
+                        </Link>
                       </Button>
                       <Button
                         variant="ghost"
@@ -95,7 +103,7 @@ function RouteComponent() {
                               "Are you sure you want to delete this variant?"
                             )
                           ) {
-                            deleteMutation.mutate(variant.id);
+                            // deleteMutation.mutate(variant.id);
                           }
                         }}
                       >
@@ -109,7 +117,9 @@ function RouteComponent() {
           </TableBody>
         </Table>
 
-        {!isLoading && variants.length === 0 && <NoDataFound className="h-full"/>}
+        {!isLoading && variants.length === 0 && (
+          <NoDataFound className="h-full" />
+        )}
       </CardContent>
     </Card>
   );
