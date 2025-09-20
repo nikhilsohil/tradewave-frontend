@@ -7,8 +7,7 @@
     "start": "vite --port 3000",
     "build": "vite build",
     "serve": "vite preview",
-    "test": "vitest run",
-    "postinstall": "npm rebuild rollup"
+    "test": "vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -53,7 +52,6 @@
     "zod": "^4.0.16"
   },
   "devDependencies": {
-    "rollup": "^4.24.0",
     "@tanstack/eslint-plugin-router": "^1.131.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
@@ -69,5 +67,10 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.9.5"
+  },
+  "overrides": {
+    "vite": {
+      "rollup": "npm:@rollup/wasm-node"
+    }
   }
 }
