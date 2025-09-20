@@ -16,7 +16,7 @@ export interface Product {
     categoryId: number
     subCategoryId: number
     secondSubCategoryId: number
-    brand: string
+    brandId: number;
     manufacturedBy: any
     marketedBy: any
     quantityPerUnit: string
@@ -26,7 +26,7 @@ export interface Product {
     retailerPrice: number
     price: number
     mfgDate: any
-    stock: number
+    inStock: number
     expiryDate: any
     thumbnail: any
     createdAt: string
@@ -34,7 +34,29 @@ export interface Product {
     category: Category
     subCategory: SubCategory
     secondSubCategory: SecondSubCategory
+    brand: Brand
+    ProductImages: ProductImage[];
+    
 }
+
+interface Brand {
+    id: number;
+    name: string;
+    description: string;
+    image: string;
+    createdBy: number;
+    createdAt: string;
+    updatedAt: string;
+    isActive: boolean;
+}
+
+interface ProductImage {
+    id: number;
+    productId: number;
+    imageUrl: string;
+    createdAt: string;
+}
+
 
 interface Category {
     id: number

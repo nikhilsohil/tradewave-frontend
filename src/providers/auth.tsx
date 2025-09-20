@@ -1,102 +1,96 @@
-import AuthApi from '@/services/api/auth'
-import type { LoginPayload, User } from '@/services/types/auth'
-import * as React from 'react'
+import AuthApi from "@/services/api/auth";
+import type { LoginData, User } from "@/services/types/auth";
+import * as React from "react";
 
 export interface AuthContextType {
-    isAuthenticated: boolean
-    login: (payload: LoginPayload) => Promise<void>
-    logout: () => Promise<void>
-    user: User | null
+  isAuthenticated: boolean;
+  login: (payload: LoginData) => Promise<void>;
+  logout: () => Promise<void>;
+  user: User | null;
 }
 
 export async function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const AuthContext = React.createContext<AuthContextType | null>(null)
+const AuthContext = React.createContext<AuthContextType | null>(null);
 
-const key = 'tanstack.auth.user'
-const tokenKey = 'accessToken'
+const key = "tanstack.auth.user";
+const tokenKey = "accessToken";
 
 function getStoredUser(): User | null {
-    try {
-        return JSON.parse(localStorage.getItem(key) || 'null');
-    } catch {
-        return null;
-    }
+  try {
+    return JSON.parse(localStorage.getItem(key) || "null");
+  } catch {
+    return null;
+  }
 }
 
 function setStoredUser(user: User | null, token: string | null): void {
-    if (user && token) {
-        localStorage.setItem(tokenKey, token);
-        localStorage.setItem(key, JSON.stringify(user));
-    } else {
-        localStorage.removeItem(key);
-        localStorage.removeItem(tokenKey);
-    }
+  if (user && token) {
+    localStorage.setItem(tokenKey, token);
+    localStorage.setItem(key, JSON.stringify(user));
+  } else {
+    localStorage.removeItem(key);
+    localStorage.removeItem(tokenKey);
+  }
 }
 
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = React.useState<User | null>(getStoredUser())
-    const isAuthenticated = !!user
+  const [user, setUser] = React.useState<User | null>(getStoredUser());
+  const isAuthenticated = !!user;
 
-    const logout = React.useCallback(async () => {
-        setStoredUser(null, null)
-        setUser(null)
-        // Get the current path and query parameters
-        const currentPathWithParams = window.location.pathname + window.location.search;
-        // Encode the path and query parameters
-        const redirectUrl = encodeURIComponent(currentPathWithParams);
-        // Add query params to the login URL
-        window.location.href = `/auth?redirect=${redirectUrl}`;
+  const logout = React.useCallback(async () => {
+    setStoredUser(null, null);
+    setUser(null);
+    // Get the current path and query parameters
+    const currentPathWithParams =
+      window.location.pathname + window.location.search;
+    // Encode the path and query parameters
+    const redirectUrl = encodeURIComponent(currentPathWithParams);
+    // Add query params to the login URL
+    window.location.href = `/auth?redirect=${redirectUrl}`;
+  }, []);
 
-    }, [])
+  const login = React.useCallback(async (payload: LoginData) => {
+    try {
+      // Call login API
+      // const response = await AuthApi.login(payload);
+      const user = payload.user;
+      const token = payload.token;
+      // Update state
+      setStoredUser(user, token);
+      setUser(user);
 
+      // Handle redirect (if "?redirect=" is present in the current URL)
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect");
+      if (redirect) {
+        window.location.href = decodeURIComponent(redirect);
+      } else {
+        window.location.href = "/"; // default route
+      }
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      // Optionally show error toast/alert
+    }
+  }, []);
 
-    const login = React.useCallback(
-        async (payload: LoginPayload) => {
-            try {
-                // Call login API
-                const response = await AuthApi.login(payload);
-                const user = response.data.data.user;
-                const token = response.data.data.token
-                // Update state
-                setStoredUser(user, token);
-                setUser(user);
+  React.useEffect(() => {
+    setUser(getStoredUser());
+  }, []);
 
-                // Handle redirect (if "?redirect=" is present in the current URL)
-                const params = new URLSearchParams(window.location.search);
-                const redirect = params.get("redirect");
-                if (redirect) {
-                    window.location.href = decodeURIComponent(redirect);
-                } else {
-                    window.location.href = "/"; // default route
-                }
-            } catch (error: any) {
-                console.error("Login failed:", error);
-                // Optionally show error toast/alert
-            }
-        },
-        []
-    );
-
-
-    React.useEffect(() => {
-        setUser(getStoredUser())
-    }, [])
-
-    return (
-        <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
-            {children}
-        </AuthContext.Provider>
-    )
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-    const context = React.useContext(AuthContext)
-    if (!context) {
-        throw new Error('useAuth must be used within an AuthProvider')
-    }
-    return context
+  const context = React.useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 }

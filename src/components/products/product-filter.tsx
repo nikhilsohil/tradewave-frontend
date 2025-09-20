@@ -79,7 +79,6 @@ function ProductFilter() {
 
                     <div className="flex flex-col gap-2">
                         <label className="text-sm" htmlFor="received">
-                            Cards Received
                         </label>
                         <Select>
                             <SelectTrigger className="w-full">
@@ -87,8 +86,9 @@ function ProductFilter() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="10">Recived ID</SelectItem>
-                                <SelectItem value="11">Not Recive ID</SelectItem>
+                                <SelectItem value="10">Low Stock</SelectItem>
+                                <SelectItem value="0">Out of Stock</SelectItem>
+                                <SelectItem value="12">In Stock</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

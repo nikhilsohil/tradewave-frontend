@@ -1,11 +1,12 @@
-export interface BaseResponse {
-    success: boolean;
-    message: string;
+export interface BaseResponse<T = any> {
+  success: boolean;
+  message: string;
+  data: T;
 }
 
 export interface Pagination {
-    page: number
-    perPage: number
-    total: number
-    totalPages: number
+  page: number;
+  perPage: number;
+  total: number;
+  totalPages: number;
 }

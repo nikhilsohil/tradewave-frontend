@@ -1,394 +1,438 @@
-import { createFileRoute } from '@tanstack/react-router'
-import type React from "react"
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import type React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Plus, Upload, X } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import CategoriesApi from "@/services/api/categories";
+import SubCategoriesApi from "@/services/api/sub-categories";
+import ProductApi from "@/services/api/products";
+import { toast } from "sonner";
+import type { Categories } from "@/services/types/categories";
+import type { SubCategories } from "@/services/types/sub-categories";
+import type { SecondSubCategories } from "@/services/types/sec-sub-categories";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import BrandAPI from "@/services/api/brand";
+import type { Brand } from "@/services/types/brand";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CalendarIcon, Upload, X } from "lucide-react"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns"
-import { cn } from "@/lib/utils"
-
-export const Route = createFileRoute('/_protected/product/add')({
-    component: RouteComponent,
-})
+export const Route = createFileRoute("/_protected/product/add")({
+  component: RouteComponent,
+});
 
 const productSchema = z.object({
-    name: z.string().min(1, "Product name is required"),
-    description: z.string().optional(),
-    categoryId: z.string().min(1, "Category is required"),
-    subCategoryId: z.string().min(1, "Sub category is required"),
-    secondSubCategoryId: z.string().optional(),
-    brand: z.string().optional(),
-    manufacturedBy: z.string().optional(),
-    marketedBy: z.string().optional(),
-    quantityPerUnit: z.string().optional(),
-    unitsPerBox: z.coerce.number().int().positive().optional(),
-    unitType: z.string().optional(),
-    mrp: z.coerce.number().positive("MRP must be a positive number"),
-    retailerPrice: z.coerce.number().positive().optional(),
-    price: z.coerce.number().positive("Price must be a positive number"),
-    mfgDate: z.date().optional(),
-    expiryDate: z.date().optional(),
-})
+  name: z
+    .string("Product name is required")
+    .min(2, "Product name must be at least 2 characters")
+    .max(100, "Product name is too long"),
+  description: z.string().optional(),
+  categoryId: z.coerce.number().min(1, "Category is required"),
+  subCategoryId: z.coerce.number().min(1, "Sub Category is required"),
+  secondSubCategoryId: z.coerce.number().optional(),
+  brandId: z.coerce.number().min(1, "Brand is required"),
+  thumbnail: z
+    .any()
+    .refine((file) => file instanceof File, "Thumbnail is required."),
+  images: z.any().optional(),
+});
 
-type ProductFormData = z.infer<typeof productSchema>
+type ProductFormData = z.infer<typeof productSchema>;
 
 function RouteComponent() {
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        watch,
-        formState: { errors },
-    } = useForm({
-        resolver: zodResolver(productSchema),
-        defaultValues: {
-            name: "",
-            description: "",
-            categoryId: "",
-            subCategoryId: "",
-            secondSubCategoryId: "",
-            brand: "",
-            manufacturedBy: "",
-            marketedBy: "",
-            quantityPerUnit: "",
-            unitType: "",
-        },
-    })
-    const [images, setImages] = useState<File[]>([])
-    const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const navigate = useNavigate();
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-    const watchedValues = watch()
+  const form = useForm({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+    },
+  });
+  const { handleSubmit, watch, control } = form;
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || [])
-        const newImages = [...images, ...files]
+  const watchedValues = watch();
 
-        setImages(newImages)
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => CategoriesApi.getAll(),
+  });
+  const { data: brands } = useQuery({
+    queryKey: ["brands"],
+    queryFn: () => BrandAPI.getAll(),
+  });
 
-        // Create previews
-        files.forEach((file) => {
-            const reader = new FileReader()
-            reader.onload = (e) => {
-                setImagePreviews((prev) => [...prev, e.target?.result as string])
-            }
-            reader.readAsDataURL(file)
-        })
+  const { data: subCategories } = useQuery({
+    queryKey: ["subCategories", watchedValues.categoryId],
+    queryFn: () =>
+      CategoriesApi.getSubCategories({ categoryId: watchedValues.categoryId }),
+    enabled: !!watchedValues.categoryId,
+  });
+
+  const { data: secSubCategories } = useQuery({
+    queryKey: ["secSubCategories", watchedValues.subCategoryId],
+    queryFn: () =>
+      SubCategoriesApi.getSecSubCategories({
+        subCategoryId: watchedValues.subCategoryId,
+      }),
+    enabled: !!watchedValues.subCategoryId,
+  });
+
+  const mutation = useMutation({
+    mutationFn: (formData: FormData) => ProductApi.addProduct(formData),
+    onSuccess: () => {
+      toast.success("Product added successfully");
+      navigate({ to: "/product" });
+    },
+    onError: (error: any) =>
+      toast.error(error.message || "Failed to add product"),
+  });
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const newImages = [...images, ...files];
+    setImages(newImages);
+
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+  };
+
+  const removeImage = (index: number) => {
+    setImages(images.filter((_, i) => i !== index));
+    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+  };
+
+  const onSubmit = (data: ProductFormData) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    if (data.description) formData.append("description", data.description);
+    formData.append("categoryId", String(data.categoryId));
+    formData.append("subCategoryId", String(data.subCategoryId));
+    if (data.secondSubCategoryId)
+      formData.append("secondSubCategoryId", String(data.secondSubCategoryId));
+    formData.append("brandId", String(data.brandId));
+    formData.append("thumbnail", data.thumbnail);
+
+    images.forEach((image) => {
+      formData.append("images", image);
+    });
+
+    mutation.mutate(formData);
+  };
+
+  const getImageSrc = (image: string | File | null) => {
+    if (image instanceof File) {
+      return URL.createObjectURL(image);
     }
+    return image;
+  };
 
-    const removeImage = (index: number) => {
-        const newImages = images.filter((_, i) => i !== index)
-        const newPreviews = imagePreviews.filter((_, i) => i !== index)
-
-        setImages(newImages)
-        setImagePreviews(newPreviews)
-    }
-
-    const onSubmit = (data: ProductFormData) => {
-        console.log("Product data:", { ...data, images })
-        // Handle form submission here
-    }
-    return (
+  return (
+    <div className="h-full">
+      <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            {/* Basic Information */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Basic Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Product Name *</Label>
-                            <Input id="name" {...register("name")} placeholder="Enter product name" />
-                            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="brand">Brand</Label>
-                            <Input id="brand" {...register("brand")} placeholder="Enter brand name" />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
-                        <Textarea id="description" {...register("description")} placeholder="Enter product description" rows={3} />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="manufacturedBy">Manufactured By</Label>
-                            <Input id="manufacturedBy" {...register("manufacturedBy")} placeholder="Enter manufacturer" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="marketedBy">Marketed By</Label>
-                            <Input id="marketedBy" {...register("marketedBy")} placeholder="Enter marketer" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Category Information */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Category Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="categoryId">Category *</Label>
-                            <Select value={watchedValues.categoryId} onValueChange={(value) => setValue("categoryId", value)}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="1">Electronics</SelectItem>
-                                    <SelectItem value="2">Clothing</SelectItem>
-                                    <SelectItem value="3">Food & Beverages</SelectItem>
-                                    <SelectItem value="4">Health & Beauty</SelectItem>
-                                    <SelectItem value="5">Home & Garden</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            {errors.categoryId && <p className="text-sm text-destructive">{errors.categoryId.message}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="subCategoryId">Sub Category *</Label>
-                            <Select value={watchedValues.subCategoryId} onValueChange={(value) => setValue("subCategoryId", value)}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select sub category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="1">Smartphones</SelectItem>
-                                    <SelectItem value="2">Laptops</SelectItem>
-                                    <SelectItem value="3">Accessories</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            {errors.subCategoryId && <p className="text-sm text-destructive">{errors.subCategoryId.message}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="secondSubCategoryId">Second Sub Category</Label>
-                            <Select
-                                value={watchedValues.secondSubCategoryId}
-                                onValueChange={(value) => setValue("secondSubCategoryId", value)}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select second sub category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="1">Android</SelectItem>
-                                    <SelectItem value="2">iOS</SelectItem>
-                                    <SelectItem value="3">Gaming</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Product Details */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Product Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="quantityPerUnit">Quantity Per Unit</Label>
-                            <Input id="quantityPerUnit" {...register("quantityPerUnit")} placeholder="e.g., 500ml, 1kg" />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="unitsPerBox">Units Per Box</Label>
-                            <Input id="unitsPerBox" type="number" {...register("unitsPerBox")} placeholder="Enter number of units" />
-                            {errors.unitsPerBox && <p className="text-sm text-destructive">{errors.unitsPerBox.message}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="unitType">Unit Type</Label>
-                            <Select value={watchedValues.unitType} onValueChange={(value) => setValue("unitType", value)}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select unit type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="piece">Piece</SelectItem>
-                                    <SelectItem value="kg">Kilogram</SelectItem>
-                                    <SelectItem value="liter">Liter</SelectItem>
-                                    <SelectItem value="meter">Meter</SelectItem>
-                                    <SelectItem value="box">Box</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Pricing Information */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Pricing Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="mrp">MRP *</Label>
-                            <Input id="mrp" type="number" step="0.01" {...register("mrp")} placeholder="Enter MRP" />
-                            {errors.mrp && <p className="text-sm text-destructive">{errors.mrp.message}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="retailerPrice">Retailer Price</Label>
-                            <Input
-                                id="retailerPrice"
-                                type="number"
-                                step="0.01"
-                                {...register("retailerPrice")}
-                                placeholder="Enter retailer price"
-                            />
-                            {errors.retailerPrice && <p className="text-sm text-destructive">{errors.retailerPrice.message}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="price">Selling Price *</Label>
-                            <Input id="price" type="number" step="0.01" {...register("price")} placeholder="Enter selling price" />
-                            {errors.price && <p className="text-sm text-destructive">{errors.price.message}</p>}
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Date Information */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Date Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>Manufacturing Date</Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className={cn(
-                                            "w-full justify-start text-left font-normal",
-                                            !watchedValues.mfgDate && "text-muted-foreground",
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {watchedValues.mfgDate ? format(watchedValues.mfgDate, "PPP") : "Pick manufacturing date"}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={watchedValues.mfgDate}
-                                        onSelect={(date) => setValue("mfgDate", date)}
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label>Expiry Date</Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className={cn(
-                                            "w-full justify-start text-left font-normal",
-                                            !watchedValues.expiryDate && "text-muted-foreground",
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {watchedValues.expiryDate ? format(watchedValues.expiryDate, "PPP") : "Pick expiry date"}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={watchedValues.expiryDate}
-                                        onSelect={(date) => setValue("expiryDate", date)}
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Image Upload */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Product Images</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="images">Upload Images</Label>
-                        <div className="flex items-center justify-center w-full">
-                            <label
-                                htmlFor="images"
-                                className="flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
-                            >
-                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
-                                    <p className="mb-2 text-sm text-muted-foreground">
-                                        <span className="font-semibold">Click to upload</span> or drag and drop
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
-                                </div>
-                                <input
-                                    id="images"
-                                    type="file"
-                                    multiple
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleImageUpload}
-                                />
-                            </label>
-                        </div>
-                    </div>
-
-                    {imagePreviews.length > 0 && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {imagePreviews.map((preview, index) => (
-                                <div key={index} className="relative">
-                                    <img
-                                        src={preview || "/placeholder.svg"}
-                                        alt={`Preview ${index + 1}`}
-                                        className="w-full h-24 object-cover rounded-lg border"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => removeImage(index)}
-                                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/80"
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* Submit Button */}
-            <div className="flex justify-end space-x-4">
-                <Button type="button" variant="outline">
-                    Cancel
-                </Button>
-                <Button type="submit">Add Product</Button>
+          <div className="p-4 pt-0 flex gap-4 justify-between items-center h-fit">
+            <div>Add Product</div>
+            <div className="flex justify-end gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate({ to: "/product" })}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={mutation.isPending}>
+                Save
+              </Button>
             </div>
+          </div>
+          <div className="grid grid-cols-6 gap-4">
+            <Card className="col-span-4">
+              <CardHeader>
+                <CardTitle>General Infomations</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Product Name *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Product 1" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={control}
+                    name="brandId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Brand *</FormLabel>
+                        <Select onValueChange={field.onChange}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select brand" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {brands?.data?.data.map((brand: Brand) => (
+                              <SelectItem
+                                key={brand.id}
+                                value={brand.id.toString()}
+                              >
+                                {brand.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="test product"
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category *</FormLabel>
+                        <Select onValueChange={field.onChange}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories?.data?.data.map(
+                              (category: Categories) => (
+                                <SelectItem
+                                  key={category.id}
+                                  value={category.id.toString()}
+                                >
+                                  {category.name}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={control}
+                    name="subCategoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sub Category *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          disabled={!watchedValues.categoryId}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select sub category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {subCategories?.data?.data.map(
+                              (subCategory: SubCategories) => (
+                                <SelectItem
+                                  key={subCategory.id}
+                                  value={subCategory.id.toString()}
+                                >
+                                  {subCategory.name}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={control}
+                    name="secondSubCategoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Second Sub Category</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          disabled={!watchedValues.subCategoryId}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select second sub category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {secSubCategories?.data?.data.map(
+                              (secSubCategory: SecondSubCategories) => (
+                                <SelectItem
+                                  key={secSubCategory.id}
+                                  value={secSubCategory.id.toString()}
+                                >
+                                  {secSubCategory.name}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="col-span-2">
+              <CardHeader>
+                <CardTitle>Images</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={control}
+                  name="thumbnail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Main Image</FormLabel>
+                      <FormControl>
+                        <div className="space-y-3">
+                          <div className="relative">
+                            <div
+                              className={`relative border-2 border-dashed rounded-lg p-8 transition-all cursor-pointer ${field.value ? "border-gray-300 bg-white" : "border-gray-300 bg-gray-50 hover:border-gray-400"}`}
+                            >
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                ref={field.ref}
+                                onChange={(e) =>
+                                  form.setValue(
+                                    "thumbnail",
+                                    e.target.files?.[0]
+                                  )
+                                }
+                              />
+                              {field.value ? (
+                                <div className="relative">
+                                  <img
+                                    src={getImageSrc(field.value) || ""}
+                                    alt="Main image"
+                                    className="w-full h-48 object-cover rounded-lg"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      form.setValue("thumbnail", undefined);
+                                    }}
+                                    className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex flex-col items-center justify-center space-y-3">
+                                  <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <Upload className="w-8 h-8 text-gray-400" />
+                                  </div>
+                                  <div className="text-center">
+                                    <p className="text-sm text-gray-600 mb-1">
+                                      Click to upload or drag and drop
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      PNG, JPG, GIF up to 10MB
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="mt-4">
+                  <Label>Additional Images</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={preview || "/placeholder.svg"}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border transition-all group-hover:brightness-50"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-destructive text-destructive-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ))}
+                    <label
+                      htmlFor="images-upload"
+                      className="flex items-center justify-center w-full h-24 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
+                    >
+                      <div className="flex flex-col items-center justify-center">
+                        <Upload className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <input
+                        id="images-upload"
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </form>
-    )
+      </Form>
+    </div>
+  );
 }

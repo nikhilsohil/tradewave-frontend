@@ -1,8 +1,6 @@
 // types/auth.ts
 
-import type { BaseResponse } from "@/api/types/base";
-
-
+import type { BaseResponse } from "@/services/types/base";
 
 export interface User {
   id: number;
