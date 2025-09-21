@@ -53,41 +53,37 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
-const categorySchema = z
-  .object({
-    id: z.union([z.string(), z.number()]).optional(),
-    name: z
-      .string("Name is required")
-      .min(2, "Name must be at least 2 characters")
-      .max(50, "Name must be less than 50 characters"),
-    description: z
-      .string()
-      .min(5, "Description must be at least 5 characters")
-      .max(200, "Description must be less than 200 characters"),
-    categoryId: z.string().min(1, "Please select a category"),
-    image: z.union([
+const categorySchema = z.object({
+  id: z.union([z.string(), z.number()]).optional(),
+  name: z
+    .string("Name is required")
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be less than 50 characters"),
+  categoryId: z.string().min(1, "Please select a category"),
+  description: z.string().optional(),
+  image: z
+    .union([
       z
         .instanceof(File, { message: "Image is required" })
         .refine((file) => !file || file.size !== 0 || file.size <= 5000000, {
           message: "Max size exceeded",
-        }),
-      z.string().trim().min(1, "Image is required"), // to hold default image
-    ]),
-  })
-  .refine(
-    (value) =>
-      (value.image instanceof File && value.image.size > 0) ||
-      (typeof value.image === "string" && value.image.length > 0),
-    {
-      message: "Image is required",
-      path: ["image"],
-    }
-  );
+        })
+        .refine(
+          (file) =>
+            ["image/jpeg", "image/png", "image/webp"].includes(file.type),
+          {
+            message: "Only JPEG, PNG, or WEBP images are allowed",
+          }
+        ),
+      z.string().trim().optional(), // to hold default image
+    ])
+    .optional(),
+});
 
 function SubCategories() {
   const [open, setOpen] = useState(false);
 
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ["sub-categories", open],
     queryFn: () => SubCategoriesApi.get({}),
   });
@@ -110,29 +106,44 @@ function SubCategories() {
   const handleSubmit = async (data: any) => {
     try {
       const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("image", data.image);
+      formData.append("categoryId", data.categoryId);
 
-      const api = edit ? SubCategoriesApi.update : SubCategoriesApi.create;
-      const response = await api(formData);
-      toast.success(
-        response?.data?.message ||
-          `Category ${edit ? "updated" : "created"} successfully`
-      );
+      if (edit) {
+        // Update category
+        const response = await SubCategoriesApi.update(data.id, formData);
+        toast.success(
+          response?.data?.message || "Category updated successfully"
+        );
+      } else {
+        // Create category
+        const response = await SubCategoriesApi.create(formData);
+        toast.success(
+          response?.data?.message || "Category created successfully"
+        );
+      }
       handelClose();
     } catch (error: any) {
       const message =
         error?.response?.data?.message || "Operation failed. Please try again.";
       toast.error(message);
+    } finally {
+      refetch();
     }
   };
 
   const deleteCategory = async (id: number) => {
     try {
-      const response = await CategoriesApi.delete(id);
+      const response = await SubCategoriesApi.delete(id);
       toast.success(response?.data?.message || "Category deleted successfully");
     } catch (error: any) {
       const message =
         error?.response?.data?.message || "Failed to delete category.";
       toast.error(message);
+    } finally {
+      refetch();
     }
   };
 
