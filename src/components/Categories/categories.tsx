@@ -45,40 +45,36 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
-const categorySchema = z
-  .object({
-    id: z.union([z.string(), z.number()]).optional(),
-    name: z
-      .string("Name is required")
-      .min(2, "Name must be at least 2 characters")
-      .max(50, "Name must be less than 50 characters"),
-    description: z
-      .string()
-      .min(5, "Description must be at least 5 characters")
-      .max(200, "Description must be less than 200 characters"),
-    image: z.union([
+const categorySchema = z.object({
+  id: z.union([z.string(), z.number()]).optional(),
+  name: z
+    .string("Name is required")
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be less than 50 characters"),
+  description: z.string().optional(),
+  image: z
+    .union([
       z
         .instanceof(File, { message: "Image is required" })
         .refine((file) => !file || file.size !== 0 || file.size <= 5000000, {
           message: "Max size exceeded",
-        }),
-      z.string().trim().min(1, "Image is required"), // to hold default image
-    ]),
-  })
-  .refine(
-    (value) =>
-      (value.image instanceof File && value.image.size > 0) ||
-      (typeof value.image === "string" && value.image.length > 0),
-    {
-      message: "Image is required",
-      path: ["image"],
-    }
-  );
+        })
+        .refine(
+          (file) =>
+            ["image/jpeg", "image/png", "image/webp"].includes(file.type),
+          {
+            message: "Only JPEG, PNG, or WEBP images are allowed",
+          }
+        ),
+      z.string().trim().optional(), // to hold default image
+    ])
+    .optional(),
+});
 
 function Categories() {
   const [open, setOpen] = useState(false);
 
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ["categories", open],
     queryFn: () => CategoriesApi.getCategories({}),
   });
@@ -125,6 +121,8 @@ function Categories() {
       const message =
         error?.response?.data?.message || "Operation failed. Please try again.";
       toast.error(message);
+    } finally {
+      refetch();
     }
   };
 
@@ -136,6 +134,8 @@ function Categories() {
       const message =
         error?.response?.data?.message || "Failed to delete category.";
       toast.error(message);
+    } finally {
+      refetch();
     }
   };
 
@@ -306,7 +306,15 @@ function Categories() {
                 <Button type="button" variant="outline" onClick={handleCLose}>
                   Cancel
                 </Button>
-                <Button type="submit">{edit ? "Save" : "Add"}</Button>
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                  {edit
+                    ? form.formState.isSubmitting
+                      ? "Saving..."
+                      : "Save"
+                    : form.formState.isSubmitting
+                      ? "Adding..."
+                      : "Add"}
+                </Button>
               </div>
             </form>
           </Form>

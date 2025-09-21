@@ -15,13 +15,12 @@ export default class SubCategoriesApi {
     return httpClient.post<CreateResponce>(`/api/subcategory`, payload);
   }
 
-  static update(payload: any) {
-    const { id } = payload;
+  static update(id: string | number, payload: any) {
     return httpClient.put(`/api/subcategory/${id}`, payload);
   }
 
   static delete(id: number) {
-    return httpClient.post<BaseResponse>(`/api/subcategory/${id}`);
+    return httpClient.delete<BaseResponse>(`/api/subcategory/${id}`);
   }
 
   static getSecSubCategories(payload: any) {

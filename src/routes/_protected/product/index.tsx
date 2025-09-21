@@ -130,10 +130,12 @@ function RouteComponent() {
                       </Link>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {product.category.name}
+                      {product?.category?.name || "-"}
                     </TableCell>
-                    <TableCell>{product.secondSubCategory.name}</TableCell>
-                    <TableCell>{product.secondSubCategory.name}</TableCell>
+                    <TableCell>{product?.subCategory?.name || "-"}</TableCell>
+                    <TableCell>
+                      {product?.secondSubCategory?.name || "-"}
+                    </TableCell>
 
                     <TableCell className="text-right">
                       <DropdownMenu>

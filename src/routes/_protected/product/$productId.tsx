@@ -165,15 +165,26 @@ function RouteComponent() {
     if (product?.data?.data && subCategories?.data?.data && hasInitialized) {
       const p = product.data.data;
 
+      requestAnimationFrame(() =>
+        form.reset({
+          name: p.name ?? "",
+          description: p.description ?? "",
+          brandId: p.brandId ?? undefined,
+          categoryId: p.categoryId ?? undefined,
+          subCategoryId: p.subCategoryId ?? undefined,
+          secondSubCategoryId: p.secondSubCategoryId ?? undefined,
+          thumbnail: p.thumbnail,
+        })
+      );
       // Ensure all select values are properly set
-      setTimeout(() => {
-        setValue("categoryId", p.categoryId);
-        setValue("subCategoryId", p.subCategoryId);
-        if (p.secondSubCategoryId) {
-          setValue("secondSubCategoryId", p.secondSubCategoryId);
-        }
-        setValue("brandId", p.brandId);
-      }, 100);
+      //   setTimeout(() => {
+      //     setValue("categoryId", p.categoryId);
+      //     setValue("subCategoryId", p.subCategoryId);
+      //     if (p.secondSubCategoryId) {
+      //       setValue("secondSubCategoryId", p.secondSubCategoryId);
+      //     }
+      //     setValue("brandId", p.brandId);
+      //   }, 100);
     }
   }, [product, subCategories, secSubCategories, hasInitialized, setValue]);
 

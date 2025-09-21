@@ -41,7 +41,7 @@ httpClient.interceptors.response.use(
       // Encode the path and query parameters
       const redirectUrl = encodeURIComponent(currentPathWithParams);
       // Add query params to the login URL
-      window.location.href = `/auth?redirect=${redirectUrl}`;
+      window.location.href = `/login?redirect=${redirectUrl}`;
     }
     return Promise.reject(error);
   }
