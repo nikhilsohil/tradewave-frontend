@@ -31,6 +31,7 @@ import { Route as ProtectedCategoryIndexRouteImport } from './routes/_protected/
 import { Route as ProtectedBrandIndexRouteImport } from './routes/_protected/brand/index'
 import { Route as ProtectedProductAddRouteImport } from './routes/_protected/product/add'
 import { Route as ProtectedProductProductIdRouteImport } from './routes/_protected/product/$productId'
+import { Route as ProtectedStaffStaffIdRouteImport } from './routes/_protected/staff/staff.$id'
 import { Route as ProtectedRetailerRetailerIdRouteImport } from './routes/_protected/retailer/retailer.$id'
 import { Route as ProtectedProductVarientsProductIdRouteImport } from './routes/_protected/product/varients/$productId'
 import { Route as ProtectedProductVarientsEditVarientIdRouteImport } from './routes/_protected/product/varients/edit.$varientId'
@@ -146,6 +147,11 @@ const ProtectedProductProductIdRoute =
     path: '/$productId',
     getParentRoute: () => ProtectedProductRouteRoute,
   } as any)
+const ProtectedStaffStaffIdRoute = ProtectedStaffStaffIdRouteImport.update({
+  id: '/staff/$id',
+  path: '/staff/$id',
+  getParentRoute: () => ProtectedStaffRouteRoute,
+} as any)
 const ProtectedRetailerRetailerIdRoute =
   ProtectedRetailerRetailerIdRouteImport.update({
     id: '/retailer/$id',
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/staff/': typeof ProtectedStaffIndexRoute
   '/product/varients/$productId': typeof ProtectedProductVarientsProductIdRoute
   '/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
+  '/staff/staff/$id': typeof ProtectedStaffStaffIdRoute
   '/product/varients/add/$productId': typeof ProtectedProductVarientsAddProductIdRoute
   '/product/varients/edit/$varientId': typeof ProtectedProductVarientsEditVarientIdRoute
 }
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/staff': typeof ProtectedStaffIndexRoute
   '/product/varients/$productId': typeof ProtectedProductVarientsProductIdRoute
   '/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
+  '/staff/staff/$id': typeof ProtectedStaffStaffIdRoute
   '/product/varients/add/$productId': typeof ProtectedProductVarientsAddProductIdRoute
   '/product/varients/edit/$varientId': typeof ProtectedProductVarientsEditVarientIdRoute
 }
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   '/_protected/staff/': typeof ProtectedStaffIndexRoute
   '/_protected/product/varients/$productId': typeof ProtectedProductVarientsProductIdRoute
   '/_protected/retailer/retailer/$id': typeof ProtectedRetailerRetailerIdRoute
+  '/_protected/staff/staff/$id': typeof ProtectedStaffStaffIdRoute
   '/_protected/product/varients/add/$productId': typeof ProtectedProductVarientsAddProductIdRoute
   '/_protected/product/varients/edit/$varientId': typeof ProtectedProductVarientsEditVarientIdRoute
 }
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/staff/'
     | '/product/varients/$productId'
     | '/retailer/retailer/$id'
+    | '/staff/staff/$id'
     | '/product/varients/add/$productId'
     | '/product/varients/edit/$varientId'
   fileRoutesByTo: FileRoutesByTo
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/product/varients/$productId'
     | '/retailer/retailer/$id'
+    | '/staff/staff/$id'
     | '/product/varients/add/$productId'
     | '/product/varients/edit/$varientId'
   id:
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '/_protected/staff/'
     | '/_protected/product/varients/$productId'
     | '/_protected/retailer/retailer/$id'
+    | '/_protected/staff/staff/$id'
     | '/_protected/product/varients/add/$productId'
     | '/_protected/product/varients/edit/$varientId'
   fileRoutesById: FileRoutesById
@@ -486,6 +498,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedProductProductIdRouteImport
       parentRoute: typeof ProtectedProductRouteRoute
     }
+    '/_protected/staff/staff/$id': {
+      id: '/_protected/staff/staff/$id'
+      path: '/staff/$id'
+      fullPath: '/staff/staff/$id'
+      preLoaderRoute: typeof ProtectedStaffStaffIdRouteImport
+      parentRoute: typeof ProtectedStaffRouteRoute
+    }
     '/_protected/retailer/retailer/$id': {
       id: '/_protected/retailer/retailer/$id'
       path: '/retailer/$id'
@@ -625,10 +644,12 @@ const ProtectedSettingsRouteRouteWithChildren =
 
 interface ProtectedStaffRouteRouteChildren {
   ProtectedStaffIndexRoute: typeof ProtectedStaffIndexRoute
+  ProtectedStaffStaffIdRoute: typeof ProtectedStaffStaffIdRoute
 }
 
 const ProtectedStaffRouteRouteChildren: ProtectedStaffRouteRouteChildren = {
   ProtectedStaffIndexRoute: ProtectedStaffIndexRoute,
+  ProtectedStaffStaffIdRoute: ProtectedStaffStaffIdRoute,
 }
 
 const ProtectedStaffRouteRouteWithChildren =

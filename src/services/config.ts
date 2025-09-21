@@ -6,7 +6,8 @@ import axios, {
 } from "axios";
 
 // Base URL from environment or fallback
-const baseURL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/";
+const baseURL =
+  import.meta.env.VITE_API_URL || "https://tradeware-backend.onrender.com";
 
 console.log("baseURL", baseURL);
 

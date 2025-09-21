@@ -184,7 +184,7 @@ function RouteComponent() {
                           size={18}
                         />
                       </span>
-                      <span
+                      {/* <span
                         className="rounded-md p-1 border text-red-600 bg-red-200/50"
                         onClick={() => handleDeleteClick(item)}
                       >
@@ -192,7 +192,7 @@ function RouteComponent() {
                           className="cursor-pointer hover:scale-125 transition duration-300"
                           size={18}
                         />
-                      </span>
+                      </span> */}
                     </div>
                   </TableCell>
                 </TableRow>
