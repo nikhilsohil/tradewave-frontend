@@ -73,6 +73,12 @@ export default function AppSidebar({
             icon: FolderOpenDotIcon,
             show: true,
           },
+          {
+            title: "Groups",
+            url: "/group",
+            icon: Group,
+            show: true,
+          },
         ],
       },
     ],
