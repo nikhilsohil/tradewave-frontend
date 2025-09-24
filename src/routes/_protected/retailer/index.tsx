@@ -62,7 +62,7 @@ function RouteComponent() {
   const retailers = data?.data?.data?.retailers || [];
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => RetailerApi.remove(id),
+    mutationFn: (id: number) => RetailerApi.reject(id),
     onSuccess: (response) => {
       toast.success(response?.data?.message || "Staff removed successfully");
       refetch();
@@ -184,7 +184,7 @@ function RouteComponent() {
                           size={18}
                         />
                       </span>
-                      {/* <span
+                    {item?.isApproved &&  <span
                         className="rounded-md p-1 border text-red-600 bg-red-200/50"
                         onClick={() => handleDeleteClick(item)}
                       >
@@ -192,7 +192,7 @@ function RouteComponent() {
                           className="cursor-pointer hover:scale-125 transition duration-300"
                           size={18}
                         />
-                      </span> */}
+                      </span>}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -315,7 +315,7 @@ const DeleteConfirmationDialog = ({
         </DialogHeader>
         <div className="py-4">
           <p>
-            This action cannot be undone. Are you sure you want to delete this
+            This action cannot be undone. Are you sure you want to deactivate this
             retailer?
           </p>
         </div>
@@ -324,7 +324,7 @@ const DeleteConfirmationDialog = ({
             Cancel
           </Button>
           <Button onClick={onConfirm} disabled={isPending}>
-            {isPending ? "Deleting..." : "Delete"}
+            {isPending ? "processingx`..." : "Deactivate"}
           </Button>
         </div>
       </DialogContent>

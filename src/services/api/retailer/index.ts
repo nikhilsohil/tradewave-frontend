@@ -11,9 +11,10 @@ export default class RetailerApi {
   }
 
   static approve(id: number) {
-    return httpClient.post(`/api/admin/retailers/approve/${id}`);
+    return httpClient.put(`/api/admin/retailers/approve/${id}`);
   }
 
+  
   static reject(id: number) {
     return httpClient.post(`/api/admin/retailers/reject/${id}`);
   }
@@ -23,4 +24,5 @@ export default class RetailerApi {
       groupId,
     });
   }
+
 }

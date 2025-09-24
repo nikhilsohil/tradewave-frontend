@@ -11,9 +11,11 @@ export default class staffApi {
   }
 
   static approve(id: number) {
-    return httpClient.post(`/api/admin/staff/approve/${id}`);
+    return httpClient.put(`/api/admin/staff/approve/${id}`);
   }
   static reject(id: number) {
-    return httpClient.post(`/api/admin/staff/reject/${id}`);
+    return httpClient.put(`/api/admin/staff/reject/${id}`);
   }
+
+  
 }
