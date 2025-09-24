@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import type { ReactElement } from "react";
+import { useAuth } from "@/providers/auth";
 // import GenerateQRDailog from "./generate-qr-dailog";
 
 interface AppHeaderProps {
@@ -11,6 +12,7 @@ interface AppHeaderProps {
 }
 
 const AppHeader = ({ className, topNav }: AppHeaderProps) => {
+  const {user} = useAuth();
   return (
     // <header className="flex sticky top-0 z-50 shrink-0 items-center justify-between gap-2 border-b px-4 bg-card text-card-foreground">
     <header
@@ -27,8 +29,8 @@ const AppHeader = ({ className, topNav }: AppHeaderProps) => {
         {/* <GlobalSearch /> */}
 
         <Avatar className={"h-7 w-7 aspect-square"}>
-          <AvatarImage src="/hrms/temp/profile.png" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src="/logo.png" />
+          <AvatarFallback>{user?.name?.charAt(0) }</AvatarFallback>
         </Avatar>
       </div>
     </header>

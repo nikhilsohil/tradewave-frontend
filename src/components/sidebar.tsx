@@ -88,11 +88,11 @@ export default function AppSidebar({
               className="hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground "
             >
               <div className="bg-transparent text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <img src="/img/synergy.png" alt="logo" width={40} height={40} />
+                <img src="/logo.png" alt="logo" width={40} height={40} className="rounded-full" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">TradeWare</span>
-                <span className="truncate text-xs">Retail management</span>
+                <span className="truncate font-medium">Tradewave Wholesale</span>
+                <span className="truncate text-xs">(Admin Panel)</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
