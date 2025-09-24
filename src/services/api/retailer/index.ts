@@ -14,6 +14,7 @@ export default class RetailerApi {
     return httpClient.put(`/api/admin/retailers/approve/${id}`);
   }
 
+  
   static reject(id: number) {
     return httpClient.post(`/api/admin/retailers/reject/${id}`);
   }
