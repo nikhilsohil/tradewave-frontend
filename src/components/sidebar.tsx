@@ -74,7 +74,7 @@ export default function AppSidebar({
             show: true,
           },
           {
-            title: "Groups",
+            title: "Retailer Categories Management",
             url: "/group",
             icon: Group,
             show: true,

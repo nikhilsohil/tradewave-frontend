@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, Eye, Trash } from "lucide-react";
+import { Check, Eye, MoreHorizontal, Trash, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import NoDataFound from "@/components/common/no-data-found";
 import { useState } from "react";
@@ -23,6 +23,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import type { Staff } from "@/services/types/staff";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/_protected/staff/")({
   component: RouteComponent,
@@ -30,7 +36,8 @@ export const Route = createFileRoute("/_protected/staff/")({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const payload = {
     page: 1,
@@ -96,7 +103,7 @@ function RouteComponent() {
                 <TableHead>Mobile</TableHead>
                 <TableHead>E-mail</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -113,38 +120,42 @@ function RouteComponent() {
                       <Badge variant={"destructive"}>In Active</Badge>
                     )}
                   </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2 justify-center items-center ">
-                      {!item.isApproved && (
-                        <span
-                          className="rounded-md p-1 border text-green-600 bg-green-200/50"
-                          onClick={() => handelApprove(item.id)}
+                  <TableCell className="text-right">
+                    <DropdownMenu modal={false}>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() =>
+                            navigate({ to: `/retailer//retailer/${item.id}` })
+                          }
                         >
-                          <Check
-                            className="cursor-pointer hover:scale-125 transition duration-300"
-                            size={18}
-                          />
-                        </span>
-                      )}
-                      <span
-                        className="rounded-md p-1 border text-yellow-600 bg-yellow-200/50"
-                        onClick={() =>
-                          navigate({ to: `/staff/staff/${item.id}` })
-                        }
-                      >
-                        <Eye
-                          className="cursor-pointer hover:scale-125 transition duration-300"
-                          size={18}
-                        />
-                      </span>
-                     {item?.isApproved &&  <span className="rounded-md p-1 border text-red-600 bg-red-200/50"
-                     onClick={() => handleDeleteClick(item)}
-                     >
-                                                  <Trash
-                                                      className="cursor-pointer hover:scale-125 transition duration-300"
-                                                      size={18} />
-                                              </span>}
-                    </div>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Details
+                        </DropdownMenuItem>
+
+                        {item.isApproved ? (
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleDeleteClick(item)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                            Inacitve
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem
+                            className="text-green-600"
+                            onClick={() => handelApprove(item.id)}
+                          >
+                            <Check className="mr-2 h-4 w-4 text-green-600" />
+                            Acitvate
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
@@ -183,10 +194,7 @@ const DeleteConfirmationDialog = ({
           <DialogTitle>Are you sure?</DialogTitle>
         </DialogHeader>
         <div className="py-4">
-          <p>
-            This action cannot be undone. Are you sure you want to deactivate this
-            staff?
-          </p>
+          <p>Are you sure you want to deactivate this staff?</p>
         </div>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
