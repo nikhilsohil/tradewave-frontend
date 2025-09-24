@@ -10,7 +10,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Check, Eye, Trash, Users } from "lucide-react";
+import {
+  Check,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Trash,
+  Trash2,
+  Users,
+} from "lucide-react";
 import RetailerApi from "@/services/api/retailer";
 import { toast } from "sonner";
 import NoDataFound from "@/components/common/no-data-found";
@@ -34,6 +42,13 @@ import type { Retailer } from "@/services/api/retailer";
 import { SearchInput } from "@/components/common/search-input";
 import { useDebounce } from "@/hooks/common";
 import { useNavigate } from "@tanstack/react-router";
+import { Dropdown } from "react-day-picker";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/_protected/retailer/")({
   component: RouteComponent,
@@ -127,7 +142,7 @@ function RouteComponent() {
                 <TableHead className="text-center">E-mail</TableHead>
                 <TableHead className="text-center">Group</TableHead>
                 <TableHead className="text-center">Status</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -150,50 +165,47 @@ function RouteComponent() {
                       <Badge variant={"destructive"}>In Active</Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex gap-2 justify-center items-center ">
-                      {!item.isApproved && (
-                        <span
-                          className="rounded-md p-1 border text-green-600 bg-green-200/50"
-                          onClick={() => handelApprove(item.id)}
+                  <TableCell className="text-right">
+                    <DropdownMenu modal={false}>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() =>
+                            navigate({ to: `/retailer//retailer/${item.id}` })
+                          }
                         >
-                          <Check
-                            className="cursor-pointer hover:scale-125 transition duration-300"
-                            size={18}
-                          />
-                        </span>
-                      )}
-                      <span
-                        className="rounded-md p-1 border text-blue-600 bg-blue-200/50"
-                        onClick={() => handleAssignGroupClick(item)}
-                      >
-                        <Users
-                          className="cursor-pointer hover:scale-125 transition duration-300"
-                          size={18}
-                        />
-                      </span>
-
-                      <span
-                        className="rounded-md p-1 border text-yellow-600 bg-yellow-200/50"
-                        onClick={() =>
-                          navigate({ to: `/retailer//retailer/${item.id}` })
-                        }
-                      >
-                        <Eye
-                          className="cursor-pointer hover:scale-125 transition duration-300"
-                          size={18}
-                        />
-                      </span>
-                    {item?.isApproved &&  <span
-                        className="rounded-md p-1 border text-red-600 bg-red-200/50"
-                        onClick={() => handleDeleteClick(item)}
-                      >
-                        <Trash
-                          className="cursor-pointer hover:scale-125 transition duration-300"
-                          size={18}
-                        />
-                      </span>}
-                    </div>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleAssignGroupClick(item)}
+                        >
+                          <Users className="mr-2 h-4 w-4" />
+                          Assign Group
+                        </DropdownMenuItem>
+                        {item.isApproved ? (
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleDeleteClick(item)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                            Inacitve
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem
+                            className="text-green-600"
+                            onClick={() => handelApprove(item.id)}
+                          >
+                            <Check className="mr-2 h-4 w-4 text-green-600" />
+                            Acitvate
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
@@ -314,10 +326,7 @@ const DeleteConfirmationDialog = ({
           <DialogTitle>Are you sure?</DialogTitle>
         </DialogHeader>
         <div className="py-4">
-          <p>
-            This action cannot be undone. Are you sure you want to deactivate this
-            retailer?
-          </p>
+          <p>Are you sure you want to deactivate this retailer?</p>
         </div>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={() => setIsOpen(false)}>

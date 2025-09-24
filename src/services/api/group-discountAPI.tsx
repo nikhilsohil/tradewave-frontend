@@ -9,9 +9,10 @@ import type { SecondSubCategoriesResponse } from "../types/sec-sub-categories";
 type DiscountSlab = {
   id: number;
   productVarientsId: number;
-  minQuantity: number;
-  maxQuantity: number;
+  elegibleForCredit: boolean;
+
   discount: string; // Prisma Decimal usually comes as string
+  retailerGroup: any;
   createdAt: string; // could be Date if you parse
   updatedAt: string; // could be Date if you parse
 };

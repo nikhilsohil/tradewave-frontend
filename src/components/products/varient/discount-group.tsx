@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -42,6 +43,7 @@ const Schema = z.object({
     .number("Please select a group")
     .int("Please select a group"),
   discount: z.coerce.number().min(1, "Discount is required"),
+  elegibleForCredit: z.boolean().default(false),
 });
 
 type SchemaType = z.infer<typeof Schema>;
@@ -54,6 +56,7 @@ function DiscountGroup({ varientId }: { varientId: number }) {
       id: "",
       retailerGroupId: "",
       discount: "",
+      elegibleForCredit: false,
     },
   });
 
@@ -68,6 +71,7 @@ function DiscountGroup({ varientId }: { varientId: number }) {
       const payload = {
         retailerGroupId: data.retailerGroupId,
         discount: data.discount,
+        elegibleForCredit: data.elegibleForCredit,
       };
 
       if (edit) {
@@ -136,7 +140,8 @@ function DiscountGroup({ varientId }: { varientId: number }) {
               <TableRow>
                 <TableHead>Group</TableHead>
                 <TableHead>Discount</TableHead>
-                <TableHead className="max-w-10"></TableHead>
+                <TableHead>Credit Elegiblety</TableHead>
+                <TableHead ></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -144,8 +149,11 @@ function DiscountGroup({ varientId }: { varientId: number }) {
                 <TableRow key={slab.id}>
                   <TableCell>{slab?.retailerGroup?.name || "-"}</TableCell>
                   <TableCell>{slab.discount || "-"}</TableCell>
-                  <TableCell className="max-w-10">
-                    <div className="flex items-center gap-2">
+                  <TableCell>
+                    {slab?.elegibleForCredit ? "Yes" : "No"}
+                  </TableCell>
+                  <TableCell >
+                    <div className="flex justify-end items-center gap-2">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -197,11 +205,11 @@ function DiscountGroup({ varientId }: { varientId: number }) {
                         onValueChange={field.onChange}
                         defaultValue={field.value?.toString()}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select a group" />
                         </SelectTrigger>
                         <SelectContent>
-                          {retailerGroups?.data.data.map((group: Group) => (
+                          {retailerGroups?.data.data.map((group: any) => (
                             <SelectItem
                               key={group.id}
                               value={group.id.toString()}
@@ -234,6 +242,27 @@ function DiscountGroup({ varientId }: { varientId: number }) {
                   </FormItem>
                 )}
               />
+
+              {/* <div className="flex justify-between space-x-2"> */}
+              <FormField
+                control={form.control}
+                name="elegibleForCredit"
+                render={({ field }) => (
+                  <FormItem className="grid-cols-2">
+                    <FormLabel>Elegible For Credit</FormLabel>
+                    <FormControl>
+                      <Switch
+                        className="justify-self-end"
+                        ref={field.ref}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* </div> */}
 
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={handleClose}>
