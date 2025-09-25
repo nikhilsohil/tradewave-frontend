@@ -22,7 +22,6 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
-    "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@tailwindcss/vite": "^4.0.6",
@@ -68,13 +67,6 @@
     "web-vitals": "^4.2.4"
   },
   "engines": {
-    "node": ">=20.19.0",
-    "npm": ">=10.8.2"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.52.2"
-  },
-  "overrides": {
-    "rollup": "npm:@rollup/wasm-node"
+    "node": "20.x"
   }
 }
