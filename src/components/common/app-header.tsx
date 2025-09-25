@@ -29,7 +29,7 @@ const AppHeader = ({ className, topNav }: AppHeaderProps) => {
         {/* <GlobalSearch /> */}
 
         <Avatar className={"h-7 w-7 aspect-square"}>
-          <AvatarImage src="/logo.png" />
+          {/* <AvatarImage src="/logo.png" /> */}
           <AvatarFallback>{user?.name?.charAt(0) }</AvatarFallback>
         </Avatar>
       </div>
