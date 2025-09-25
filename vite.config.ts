@@ -11,6 +11,7 @@ export default defineConfig({
       target: "react",
       autoCodeSplitting: true,
     }),
+    
     tailwindcss(),
     tsconfigPaths(),
     viteReact(),
