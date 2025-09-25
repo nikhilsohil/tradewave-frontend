@@ -163,7 +163,7 @@ function RouteComponent() {
                 Cancel
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                Save
+                {mutation.isPending ? "Adding..." : "Add"}
               </Button>
             </div>
           </div>

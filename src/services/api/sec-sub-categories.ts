@@ -19,10 +19,10 @@ export default class SecSubCategoriesApi {
 
   static update(payload: any) {
     const { id } = payload;
-    return httpClient.post(`/api/secsubcategory/${id}`, payload);
+    return httpClient.put(`/api/secsubcategory/${id}`, payload);
   }
 
   static delete(id: number) {
-    return httpClient.post<BaseResponse>(`/api/secsubcategory/${id}`);
+    return httpClient.delete<BaseResponse>(`/api/secsubcategory/${id}`);
   }
 }

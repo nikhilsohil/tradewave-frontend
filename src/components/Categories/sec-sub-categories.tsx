@@ -60,7 +60,7 @@ const categorySchema = z.object({
     .min(2, "Name must be at least 2 characters")
     .max(50, "Name must be less than 50 characters"),
   description: z.string().optional(),
-  categoryId: z.string().min(1, "Please select a category"),
+  // categoryId: z.string().min(1, "Please select a category"),
   subCategoryId: z.string().min(1, "Plese select a subcategory"),
 });
 
@@ -80,7 +80,6 @@ function SecSubCategories() {
       id: "",
       name: "",
       description: "",
-      categoryId: "",
       subCategoryId: "",
     },
   });
@@ -123,13 +122,16 @@ function SecSubCategories() {
   };
 
   const handelEdit = (category: any) => {
-    form.setValue("id", category.id);
-    form.setValue("name", category.name);
-    form.setValue("description", category.description);
-    form.setValue("categoryId", category.categoryId);
-    form.setValue("subCategoryId", category.SubCategoryId);
     setEdit(true);
     setOpen(true);
+    requestAnimationFrame(() => {
+      form.reset({
+        id: category.id,
+        name: category.name,
+        description: category.description,
+        subCategoryId: category.subCategoryId.toString(),
+      });
+    });
   };
 
   const handleClose = () => {
@@ -137,11 +139,8 @@ function SecSubCategories() {
     setEdit(false);
     form.reset();
   };
-  const categoryId = form.watch("categoryId"); // ✅ Get selected category ID
 
-  const { categories, isLoading: categoriesLoading } = useCategory();
-  const { subCategories, isLoading: subCategoriesLoading } =
-    useSubCategory(categoryId);
+  const { subCategories, isLoading: subCategoriesLoading } = useSubCategory();
 
   return (
     <>
@@ -162,7 +161,7 @@ function SecSubCategories() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Description</TableHead>
-                  <TableHead>Category</TableHead>
+                  {/* <TableHead>Category</TableHead> */}
                   <TableHead>Subcategory</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -174,14 +173,14 @@ function SecSubCategories() {
                     <TableCell className="text-muted-foreground">
                       {item.description}
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <Badge variant="outline">
                         {item?.category?.name || "-"}
                       </Badge>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
-                      <Badge variant="secondary">
-                        {item?.subCategory.name || "-"}
+                      <Badge variant={"outline"}>
+                        {item?.subCategory?.name || "-"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -277,87 +276,52 @@ function SecSubCategories() {
                   </FormItem>
                 )}
               />
-              <div className="w-full gap-4 flex justify-between items-start">
-                <FormField
-                  control={form.control}
-                  name="categoryId"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Category</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          form.setValue("subCategoryId", "");
-                        }}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value={" "}>Select</SelectItem>
-                          {categories.map((category) => (
-                            <SelectItem
-                              key={category.value}
-                              value={category.value.toString()}
-                            >
-                              {category.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
-                <FormField
-                  control={form.control}
-                  name="subCategoryId"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Sub Category</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a sub category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categoriesLoading && (
-                            <SelectItem value=" " disabled>
-                              Loading...
-                            </SelectItem>
-                          )}
-                          <SelectItem value=" " disabled>
-                            None
+              <FormField
+                control={form.control}
+                name="subCategoryId"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Sub Category</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a sub category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value=" ">None</SelectItem>
+                        {subCategories.map((category) => (
+                          <SelectItem
+                            key={category.value}
+                            value={category.value.toString()}
+                          >
+                            {category.label}
                           </SelectItem>
-                          {subCategories.map((category) => (
-                            <SelectItem
-                              key={category.value}
-                              value={category.value.toString()}
-                            >
-                              {category.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={handleClose}>
                   Cancel
                 </Button>
-                <Button type="submit">{edit ? "Save" : "Add"}</Button>
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                  {edit
+                    ? form.formState.isSubmitting
+                      ? "Saving..."
+                      : "Save"
+                    : form.formState.isSubmitting
+                      ? "Adding..."
+                      : "Add"}
+                </Button>
               </div>
             </form>
           </Form>

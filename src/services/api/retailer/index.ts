@@ -16,7 +16,7 @@ export default class RetailerApi {
 
   
   static reject(id: number) {
-    return httpClient.post(`/api/admin/retailers/reject/${id}`);
+    return httpClient.put(`/api/admin/retailers/reject/${id}`);
   }
 
   static assignGroup(retailerId: number, groupId: number) {

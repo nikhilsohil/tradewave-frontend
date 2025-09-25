@@ -137,7 +137,7 @@ export default function RouteComponent({
 
   return (
     <>
-      <Card className={className}>
+      <Card className='h-full'>
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-xl">Groups</CardTitle>
