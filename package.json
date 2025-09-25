@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000",
+    "postinstall": "npm rebuild lightningcss",
     "start": "vite --port 3000",
     "build": "vite build",
     "serve": "vite preview",
@@ -68,7 +69,7 @@
     "web-vitals": "^4.2.4"
   },
   "engines": {
-    "node": ">=20.19.0",
+    "node": "20.x",
     "npm": ">=10.8.2"
   }
 }
