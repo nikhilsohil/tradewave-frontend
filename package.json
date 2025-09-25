@@ -69,5 +69,8 @@
   },
   "engines": {
     "node": "20.x"
+  },
+  "resolutions": {
+     "rollup": "npm:@rollup/wasm-node@*"
   }
 }
