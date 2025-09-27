@@ -76,7 +76,7 @@ const categorySchema = z.object({
     ])
     .optional(),
 });
-export default function RouteComponent() {
+ function RouteComponent() {
   const [open, setOpen] = useState(false);
 
   const { data, refetch } = useQuery({

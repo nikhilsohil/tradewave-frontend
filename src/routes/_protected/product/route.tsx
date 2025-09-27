@@ -1,6 +1,6 @@
 import AppHeader from "@/components/common/app-header";
 import { CustomLink, TopNav } from "@/components/common/top-nav";
-import { Outlet } from "@tanstack/react-router";
+import { Outlet, useParams } from "@tanstack/react-router";
 
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_protected/product")({
 });
 
 function RouteComponent() {
-  const { productId } = Route.useParams();
+  const { productId } = useParams({ strict:false });
 
   return (
     <>

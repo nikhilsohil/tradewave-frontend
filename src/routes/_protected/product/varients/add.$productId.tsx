@@ -115,7 +115,11 @@ function RouteComponent() {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex justify-end gap-4 space-y-4 mb-4">
-            <Button variant={"outline"} disabled={mutation.isPending}>
+            <Button
+              variant={"outline"}
+              type="button"
+              disabled={mutation.isPending}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={mutation.isPending}>

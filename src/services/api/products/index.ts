@@ -4,7 +4,7 @@ import type { Product, ProductResponse } from "@/services/types/products";
 
 export default class ProductApi {
   static get(payload: any) {
-    return httpClient.post<ProductResponse>("/api/products", payload);
+    return httpClient.post<ProductResponse>("/api/admin/product", payload);
   }
 
   static addProduct(payload: any) {
