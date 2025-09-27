@@ -164,7 +164,7 @@ function RouteComponent() {
   });
 
   const onSubmit = (data: VarientFormData) => {
-    mutation.mutate({ ...data, productId });
+    mutation.mutate({ ...data, varientId });
   };
 
   if (isVarientLoading) return <div>Loading...</div>;
@@ -487,14 +487,21 @@ function RouteComponent() {
               </CardContent>
             </Card>
 
-            <DiscountGroup varientId={varientId} />
+            {/* <DiscountGroup varientId={varientId} />
 
             {form.watch("elegibleForGoodWill") && (
               <DiscountSlab varientId={varientId} />
-            )}
+            )} */}
           </div>
         </form>
       </Form>
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <DiscountGroup varientId={varientId} />
+
+        {form.watch("elegibleForGoodWill") && (
+          <DiscountSlab varientId={varientId} />
+        )}
+      </div>
     </div>
   );
 }
