@@ -116,7 +116,7 @@ function DiscountSlab({ varientId }: { varientId: number }) {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
-            <CardTitle>Good Will Discount Slab</CardTitle>
+            <CardTitle>Standard Discount</CardTitle>
             <Plus onClick={() => setOpen(true)} />
           </div>
         </CardHeader>

@@ -33,13 +33,13 @@ function RouteComponent() {
   return (
     <Card className="h-full">
       <CardHeader className=" flex flex-row items-center justify-between">
-        <CardTitle>Product Variants</CardTitle>
+        <CardTitle>Product Details</CardTitle>
         <Link
           to="/product/varients/add/$productId"
           params={{ productId }}
           //  onClick={() => setShowAddForm(true)}
         >
-          <Button>Add Variant</Button>
+          <Button>Add Details</Button>
         </Link>
       </CardHeader>
       <CardContent className="flex-grow">

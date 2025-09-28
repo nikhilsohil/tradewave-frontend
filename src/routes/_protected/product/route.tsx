@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_protected/product")({
 });
 
 function RouteComponent() {
-  const { productId } = useParams({ strict:false });
+  const { productId } = useParams({ strict: false });
 
   return (
     <>
@@ -30,7 +30,7 @@ function RouteComponent() {
                   to="/product/varients/$productId"
                   params={{ productId: productId }}
                 >
-                  Varients
+                  Details
                 </CustomLink>
               </>
             )}

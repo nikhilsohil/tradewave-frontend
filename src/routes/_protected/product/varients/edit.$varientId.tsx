@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -93,6 +93,7 @@ const varientSchema = z.object({
 type VarientFormData = z.infer<typeof varientSchema>;
 function RouteComponent() {
   const { varientId } = Route.useLoaderData();
+  const navigate = useNavigate();
   const { data: varientData, isLoading: isVarientLoading } = useQuery({
     queryKey: ["product", varientId],
     queryFn: () => VarientApi.getVariantById(Number(varientId)),
@@ -156,7 +157,8 @@ function RouteComponent() {
 
     onSuccess: (data) => {
       toast.success("Product variant added successfully");
-      const variantId = data.data.data.id;
+      const productId = data.data.data.productId;
+      navigate({ to: `/product/varients/${productId}` });
     },
     onError: (error) => {
       toast.error(error.message || "Failed to add product variant");
@@ -178,12 +180,14 @@ function RouteComponent() {
               <Button
                 variant={"outline"}
                 disabled={mutation.isPending}
-                onClick={() => reset()}
+                onClick={() => {
+                  reset();
+                }}
               >
                 Cancel
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Adding Variant..." : "Add Variant"}
+                {mutation.isPending ? "Updating..." : "Update"}
               </Button>
             </div>
           )}
@@ -279,6 +283,20 @@ function RouteComponent() {
                           value={field.value}
                           onChange={field.onChange}
                         />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="inStock"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Stock Unit</FormLabel>
+                        <Input type="number" placeholder="0" {...field} />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -414,8 +432,69 @@ function RouteComponent() {
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="md:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Tax Info</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="hsnCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>HSN Code</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="Enter HSN Code"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="igst"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>IGST</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Enter IGST"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex items-center space-x-4">
+                  <FormField
+                    control={form.control}
+                    name="lgst"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>LGST</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Enter LGST"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
               <CardHeader>
                 <CardTitle>Discounts & Eligibility</CardTitle>
               </CardHeader>
