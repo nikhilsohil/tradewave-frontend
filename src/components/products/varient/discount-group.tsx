@@ -130,7 +130,7 @@ function DiscountGroup({ varientId }: { varientId: number }) {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
-            <CardTitle>Group Discount</CardTitle>
+            <CardTitle>Good Will Discount</CardTitle>
             <Plus onClick={() => setOpen(true)} />
           </div>
         </CardHeader>
