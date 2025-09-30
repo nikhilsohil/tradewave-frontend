@@ -37,7 +37,7 @@ const columns: ColumnDef<Order>[] = [
     accessorKey: "id",
     header: "Order ID",
     cell: ({ row }) => (
-      <span className="font-mono text-xs text-gray-600">{row.original.id}</span>
+      <span className="font-medium ps-1.5">{row.original.id}</span>
     ),
   },
   {
@@ -73,7 +73,7 @@ const columns: ColumnDef<Order>[] = [
     header: "Total Amount",
     cell: ({ row }) => (
       <span className="font-semibold">
-        ₹{row.original.totalAmount.toFixed(2)}
+        ₹{row.original.totalAmount}
       </span>
     ),
   },
