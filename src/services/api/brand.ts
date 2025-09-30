@@ -13,6 +13,6 @@ export default class BrandAPI {
     return httpClient.post<BrandCreateResponce>(`/api/brand`, payload);
   }
   static delete(id: number) {
-    return httpClient.post<BaseResponse>(`/api/brand/${id}`);
+    return httpClient.delete<BaseResponse>(`/api/brand/${id}`);
   }
 }

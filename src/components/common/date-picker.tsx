@@ -1,98 +1,120 @@
-import React, { useState } from "react";
-import { format, parse, isValid, isBefore, isAfter } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { X } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { format, parse } from "date-fns";
 
-interface DatePickerProps {
-  value?: Date;
-  onChange?: (date: Date | undefined) => void;
-  minDate?: Date;
-  maxDate?: Date;
+type DatePickerProps = {
+  value?: Date | null;
+  onChange?: (date: Date | null) => void;
   placeholder?: string;
-}
+  formatString?: string; // default: "MMMM dd, yyyy"
+};
 
 export default function DatePicker({
-  value,
+  value = null,
   onChange,
-  placeholder = "Select date",
-  minDate,
-  maxDate,
+  placeholder = "Select a date",
+  formatString = "dd/mm/yyyy",
 }: DatePickerProps) {
-  const [internalValue, setInternalValue] = useState<Date | undefined>(value);
-  const [inputValue, setInputValue] = useState(
-    value ? format(value, "dd/MM/yyyy") : ""
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date | null>(value);
+  const [month, setMonth] = useState<Date | null>(value);
+  const [inputValue, setInputValue] = useState<string>(
+    value ? format(value, formatString) : ""
   );
 
-  const finalValue = value !== undefined ? value : internalValue;
-  const handleChange = (date: Date | undefined) => {
-    if (onChange) {
-      onChange(date);
-    } else {
-      setInternalValue(date);
+  useEffect(() => {
+    if (value) {
+      setDate(value);
+      setMonth(value);
+      setInputValue(format(value, formatString));
     }
-    setInputValue(date ? format(date, "dd/MM/yyyy") : "");
-  };
+  }, [value, formatString]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setInputValue(val);
-
-    const parsedDate = parse(val, "dd/MM/yyyy", new Date());
-    if (isValid(parsedDate)) {
-      if (
-        (minDate && isBefore(parsedDate, minDate)) ||
-        (maxDate && isAfter(parsedDate, maxDate))
-      ) {
-        handleChange(undefined); // outside range
-      } else {
-        handleChange(parsedDate);
-      }
-    } else {
-      handleChange(undefined); // invalid date
+  const tryParseDate = (input: string): Date | null => {
+    try {
+      const parsed = parse(input, formatString, new Date());
+      return isNaN(parsed.getTime()) ? null : parsed;
+    } catch {
+      return null;
     }
-  };
-
-  const clearDate = () => {
-    handleChange(undefined);
   };
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <div className="relative w-full">
-          <Input
-            value={inputValue}
-            placeholder="dd/mm/yyyy"
-            onChange={handleInputChange}
+    <div className="relative flex gap-2">
+      <Input
+        id="date"
+        value={inputValue}
+        placeholder={placeholder}
+        className="bg-background pr-10"
+        onChange={(e) => {
+          const input = e.target.value;
+          setInputValue(input);
+
+          const parsed = tryParseDate(input);
+          if (parsed) {
+            setDate(parsed);
+            setMonth(parsed);
+            onChange?.(parsed);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+        onBlur={() => {
+          const parsed = tryParseDate(inputValue);
+          if (!parsed) {
+            setInputValue(""); // clear input
+            setDate(null);
+            setMonth(null);
+            onChange?.(null);
+          }
+        }}
+        // onFocus={() => setOpen(true)} // 👈 open calendar on focus
+      />
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            id="date-picker"
+            variant="ghost"
+            className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+          >
+            <CalendarIcon className="size-3.5" />
+            <span className="sr-only">Select date</span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-auto overflow-hidden p-0"
+          align="end"
+          alignOffset={-8}
+          sideOffset={10}
+        >
+          <Calendar
+            mode="single"
+            selected={date ?? undefined}
+            captionLayout="dropdown"
+            month={month ?? undefined}
+            onMonthChange={setMonth}
+            onSelect={(d) => {
+              setDate(d ?? null);
+              setInputValue(d ? format(d, formatString) : "");
+              onChange?.(d ?? null);
+              setOpen(false);
+            }}
+            showOutsideDays={false}
           />
-          {finalValue && (
-            <button
-              type="button"
-              onClick={clearDate}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-500"
-            >
-              <X size={16} />
-            </button>
-          )}
-        </div>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="p-0">
-        <Calendar
-          mode="single"
-          selected={finalValue}
-          onSelect={handleChange}
-          //   disabled={(date) =>
-          //     (minDate && isBefore(date, minDate)) ||
-          //     (maxDate && isAfter(date, maxDate))||undefined
-          //   }
-        />
-      </PopoverContent>
-    </Popover>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }

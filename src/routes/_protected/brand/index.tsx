@@ -134,10 +134,10 @@ const categorySchema = z.object({
   const deleteBrand = async (id: number) => {
     try {
       const response = await BrandAPI.delete(id);
-      toast.success(response?.data?.message || "Category deleted successfully");
+      toast.success(response?.data?.message || "Brand deleted successfully");
     } catch (error: any) {
       const message =
-        error?.response?.data?.message || "Failed to delete category.";
+        error?.response?.data?.message || "Failed to delete Brand.";
       toast.error(message);
     }
   };
