@@ -42,12 +42,18 @@ const Schema = z.object({
   retailerGroupId: z.coerce
     .number("Please select a group")
     .int("Please select a group"),
-  discount: z.coerce.number().min(1, "Discount is required"),
+  discount: z.coerce.number().min(0.1, "Discount is required"),
   elegibleForCredit: z.boolean().default(false),
 });
 
 type SchemaType = z.infer<typeof Schema>;
-function DiscountGroup({ varientId }: { varientId: number }) {
+function DiscountGroup({
+  varientId,
+  elegibleForCredit,
+}: {
+  varientId: number;
+  elegibleForCredit: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const form = useForm({
@@ -141,7 +147,7 @@ function DiscountGroup({ varientId }: { varientId: number }) {
                 <TableHead>Group</TableHead>
                 <TableHead>Discount</TableHead>
                 <TableHead>Credit Elegiblety</TableHead>
-                <TableHead ></TableHead>
+                <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -152,7 +158,7 @@ function DiscountGroup({ varientId }: { varientId: number }) {
                   <TableCell>
                     {slab?.elegibleForCredit ? "Yes" : "No"}
                   </TableCell>
-                  <TableCell >
+                  <TableCell>
                     <div className="flex justify-end items-center gap-2">
                       <Button
                         variant="ghost"
@@ -235,6 +241,8 @@ function DiscountGroup({ varientId }: { varientId: number }) {
                       <Input
                         type="number"
                         placeholder="Enter discount % "
+                        min={0}
+                        max={100}
                         {...field}
                       />
                     </FormControl>
@@ -256,6 +264,7 @@ function DiscountGroup({ varientId }: { varientId: number }) {
                         ref={field.ref}
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        disabled={!elegibleForCredit}
                       />
                     </FormControl>
                     <FormMessage />

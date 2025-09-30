@@ -34,7 +34,7 @@ const groupSchema = z.object({
   id: z.union([z.string(), z.number()]).optional(),
   minQuantity: z.coerce.number().min(1, "Min quantity is required"),
   maxQuantity: z.coerce.number().optional(),
-  discount: z.coerce.number().min(1, "Discount is required"),
+  discount: z.coerce.number().min(0.1, "Discount is required"),
 });
 
 type SchemaType = z.infer<typeof groupSchema>;
@@ -224,6 +224,8 @@ function DiscountSlab({ varientId }: { varientId: number }) {
                       <Input
                         type="number"
                         placeholder="Enter discount % "
+                        min={0}
+                        max={100}
                         {...field}
                       />
                     </FormControl>

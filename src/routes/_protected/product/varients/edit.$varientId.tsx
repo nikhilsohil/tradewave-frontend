@@ -557,7 +557,7 @@ function RouteComponent() {
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel>Eligible for Goodwill</FormLabel>
+                          <FormLabel>Elegible For Standard Discount</FormLabel>
                         </div>
                       </FormItem>
                     )}
@@ -575,7 +575,7 @@ function RouteComponent() {
         </form>
       </Form>
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <DiscountGroup varientId={varientId} />
+        <DiscountGroup varientId={varientId} elegibleForCredit={form.watch("elegibleForCredit")} />
 
         {form.watch("elegibleForGoodWill") && (
           <DiscountSlab varientId={varientId} />
