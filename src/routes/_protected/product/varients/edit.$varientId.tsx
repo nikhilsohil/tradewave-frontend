@@ -528,7 +528,7 @@ function RouteComponent() {
                   />
                 </div>
                 <div className="flex items-center space-x-4">
-                  {/* <FormField
+                  <FormField
                     control={form.control}
                     name="elegibleForCredit"
                     render={({ field }) => (
@@ -544,7 +544,7 @@ function RouteComponent() {
                         </div>
                       </FormItem>
                     )}
-                  /> */}
+                  />
                   <FormField
                     control={form.control}
                     name="elegibleForGoodWill"
