@@ -545,23 +545,6 @@ function RouteComponent() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="elegibleForGoodWill"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Elegible For Standard Discount</FormLabel>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
                 </div>
               </CardContent>
             </Card>
@@ -575,11 +558,12 @@ function RouteComponent() {
         </form>
       </Form>
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <DiscountGroup varientId={varientId} elegibleForCredit={form.watch("elegibleForCredit")} />
+        <DiscountGroup
+          varientId={varientId}
+          elegibleForCredit={form.watch("elegibleForCredit")}
+        />
 
-        {form.watch("elegibleForGoodWill") && (
-          <DiscountSlab varientId={varientId} />
-        )}
+        <DiscountSlab varientId={varientId} />
       </div>
     </div>
   );
