@@ -224,8 +224,9 @@ function DiscountSlab({ varientId }: { varientId: number }) {
                       <Input
                         type="number"
                         placeholder="Enter discount % "
-                        min={0}
+                        min={0.1}
                         max={100}
+                        step="any" // ✅ allows decimals like 1.3
                         {...field}
                       />
                     </FormControl>

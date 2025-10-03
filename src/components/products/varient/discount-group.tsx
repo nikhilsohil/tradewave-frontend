@@ -41,7 +41,7 @@ const Schema = z.object({
   id: z.union([z.string(), z.number()]).optional(),
   retailerGroupId: z.coerce
     .number("Please select a group")
-    .int("Please select a group"),
+    .int("Please select a group").min(1, "Please select a group"),
   discount: z.coerce.number().min(0.1, "Discount is required"),
   elegibleForCredit: z.boolean().default(false),
 });
@@ -52,7 +52,7 @@ function DiscountGroup({
   elegibleForCredit,
 }: {
   varientId: number;
-  elegibleForCredit: boolean;
+  elegibleForCredit: boolean|undefined;
 }) {
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
@@ -241,8 +241,9 @@ function DiscountGroup({
                       <Input
                         type="number"
                         placeholder="Enter discount % "
-                        min={0}
+                        min={0.1}
                         max={100}
+                        step="any" // ✅ allows decimals like 1.3
                         {...field}
                       />
                     </FormControl>
