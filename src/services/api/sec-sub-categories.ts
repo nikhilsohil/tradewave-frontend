@@ -17,8 +17,7 @@ export default class SecSubCategoriesApi {
     return httpClient.post<CreateResponce>(`/api/secsubcategory`, payload);
   }
 
-  static update(payload: any) {
-    const { id } = payload;
+  static update(id: string | number,payload: any) {
     return httpClient.put(`/api/secsubcategory/${id}`, payload);
   }
 

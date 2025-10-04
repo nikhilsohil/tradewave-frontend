@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { Edit2, Plus, Trash2 } from "lucide-react";
@@ -155,15 +155,29 @@ function SubCategories() {
     setEdit(true);
     setOpen(true);
   };
-  const { categories } = useCategory();
-  console.log("formState.errors", form.formState.errors);
-  console.log("formState", form.getValues());
+  // const { categories } = useCategory();
+  const {
+    data: categoriesData,
+  } = useQuery({
+    queryKey: ["categories", open],
+    queryFn: () => CategoriesApi.getAll(),
+    refetchOnWindowFocus: true,
+  });
 
+  const categories = useMemo(
+    () =>
+      (categoriesData?.data?.data || []).map((item: any) => ({
+        label: item.name,
+        value: item.id,
+      })),
+    [data]
+  );
   const handelClose = () => {
     setOpen(false);
     setEdit(false);
     form.reset();
   };
+  const isSubmitting = form.formState.isSubmitting;
   return (
     <>
       <Card>
@@ -195,7 +209,9 @@ function SubCategories() {
                       {item.description}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{item?.category?.name||"-"}</Badge>
+                      <Badge variant="outline">
+                        {item?.category?.name || "-"}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end space-x-2">
@@ -349,7 +365,15 @@ function SubCategories() {
                 <Button type="button" variant="outline" onClick={handelClose}>
                   Cancel
                 </Button>
-                <Button type="submit">{edit ? "Save" : "Add"}</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {edit
+                    ? isSubmitting
+                      ? "Saving..."
+                      : "Save"
+                    : isSubmitting
+                      ? "Adding..."
+                      : "Add"}
+                </Button>
               </div>
             </form>
           </Form>

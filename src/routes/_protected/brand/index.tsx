@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Edit2, Plus, Trash2 } from "lucide-react";
 import type { useSearch } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AlertDialog, AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import {
+  AlertDialog,
+  AlertDialogTrigger,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,

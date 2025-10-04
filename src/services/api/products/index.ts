@@ -21,6 +21,12 @@ export default class ProductApi {
   static updateProduct(id: number, payload: any) {
     return httpClient.put<ProductResponse>(`/api/admin/product/${id}`, payload);
   }
+
+  static delete(id: number) {
+    return httpClient.delete<BaseResponse>(`/api/admin/product/${id}`);
+  }
+
+  static activate(id: number) {
+    return httpClient.put<BaseResponse>(`/api/admin/product/active/${id}`);
+  }
 }
-
-

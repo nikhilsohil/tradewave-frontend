@@ -47,7 +47,6 @@ const varientSchema = z.object({
   mrpWithGST: z.coerce.number().min(0, "MRP is required"),
   inStock: z.coerce.number().optional(),
   elegibleForCredit: z.boolean().optional(),
-  elegibleForGoodWill: z.boolean().optional(),
   DiscountOnCOB: z.coerce.number().optional(),
   DiscountOnCOD: z.coerce.number().optional(),
   groupDiscounts: z.array(z.object({
@@ -69,7 +68,6 @@ export function VarientForm({ productId, onSuccess, initialData }: VarientFormPr
     resolver: zodResolver(varientSchema),
     defaultValues: {
       elegibleForCredit: false,
-      elegibleForGoodWill: false,
       groupDiscounts: [],
     },
   });
@@ -420,23 +418,7 @@ export function VarientForm({ productId, onSuccess, initialData }: VarientFormPr
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="elegibleForGoodWill"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Eligible for Goodwill</FormLabel>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
+                 
                 </div>
               </CardContent>
             </Card>

@@ -16,7 +16,6 @@ interface AddProductVarient {
   mrpWithGST: number;
   inStock?: number;
   elegibleForCredit?: boolean;
-  elegibleForGoodWill?: boolean;
   DiscountOnCOB?: number;
   DiscountOnCOD?: number;
 }
@@ -37,7 +36,6 @@ interface ProductVarient {
   bulkPackType: string;
   createdAt: string;
   elegibleForCredit: boolean;
-  elegibleForGoodWill: boolean;
   expDate: string;
   inStock: number;
   mfgDate: string;
@@ -46,7 +44,7 @@ interface ProductVarient {
   purchasePriceWithGST: string;
   quantityPurchased: number;
   sellerGST: string;
-  status: boolean;
+  isActive: boolean;
   unitsPerBulkPack: number;
   updateAt: string;
 }
