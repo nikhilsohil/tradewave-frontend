@@ -69,7 +69,6 @@ const varientSchema = z.object({
   mrpWithGST: z.coerce.number().min(0, "MRP is required"),
   inStock: z.coerce.number().optional(),
   elegibleForCredit: z.boolean().optional(),
-  elegibleForGoodWill: z.boolean().optional(),
   DiscountOnCOB: z.coerce.number().optional(),
   DiscountOnCOD: z.coerce.number().optional(),
   ProductDiscountByGroup: z
@@ -103,7 +102,6 @@ function RouteComponent() {
     resolver: zodResolver(varientSchema),
     defaultValues: {
       elegibleForCredit: false,
-      elegibleForGoodWill: false,
       ProductDiscountByGroup: [],
     },
   });
@@ -134,7 +132,6 @@ function RouteComponent() {
           mrpWithGST: v.mrpWithGST,
           inStock: v.inStock,
           elegibleForCredit: v.elegibleForCredit,
-          elegibleForGoodWill: v.elegibleForGoodWill,
           DiscountOnCOB: v.DiscountOnCOB,
           DiscountOnCOD: v.DiscountOnCOD,
           ProductDiscountByGroup: v.ProductDiscountByGroup,
@@ -496,7 +493,7 @@ function RouteComponent() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Discounts & Eligibility</CardTitle>
+                <CardTitle>Cash Discounts & Credit Eligibility</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -548,12 +545,6 @@ function RouteComponent() {
                 </div>
               </CardContent>
             </Card>
-
-            {/* <DiscountGroup varientId={varientId} />
-
-            {form.watch("elegibleForGoodWill") && (
-              <DiscountSlab varientId={varientId} />
-            )} */}
           </div>
         </form>
       </Form>

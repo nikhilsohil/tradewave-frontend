@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { Edit2, Plus, Trash2 } from "lucide-react";
@@ -52,6 +52,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import CategoriesApi from "@/services/api/categories";
 
 const categorySchema = z.object({
   id: z.union([z.string(), z.number()]).optional(),
@@ -62,6 +63,23 @@ const categorySchema = z.object({
   description: z.string().optional(),
   // categoryId: z.string().min(1, "Please select a category"),
   subCategoryId: z.string().min(1, "Plese select a subcategory"),
+  image: z
+    .union([
+      z
+        .instanceof(File, { message: "Image is required" })
+        .refine((file) => !file || file.size !== 0 || file.size <= 5000000, {
+          message: "Max size exceeded",
+        })
+        .refine(
+          (file) =>
+            ["image/jpeg", "image/png", "image/webp"].includes(file.type),
+          {
+            message: "Only JPEG, PNG, or WEBP images are allowed",
+          }
+        ),
+      z.string().trim().optional(), // to hold default image
+    ])
+    .optional(),
 });
 
 function SecSubCategories() {
@@ -81,21 +99,34 @@ function SecSubCategories() {
       name: "",
       description: "",
       subCategoryId: "",
+      image: "",
     },
   });
 
   const [edit, setEdit] = useState(false);
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (value: any) => {
     try {
-      const api = edit
-        ? SecSubCategoriesApi.update
-        : SecSubCategoriesApi.create;
-      const response = await api(formData);
-      toast.success(
-        response?.data?.message ||
-          `Secondary SubCategory ${edit ? "updated" : "created"} successfully`
-      );
+      const formData = new FormData();
+      formData.append("name", value.name);
+      formData.append("description", value.description);
+      formData.append("subCategoryId", value.subCategoryId);
+      formData.append("image", value.image);
+      if (edit) {
+        formData.append("id", value.id);
+        const response = await SecSubCategoriesApi.update(value.id,formData);
+        toast.success(
+          response?.data?.message ||
+            `Secondary SubCategory updated successfully`
+        );
+      } else {
+        const response = await SecSubCategoriesApi.create(formData);
+        toast.success(
+          response?.data?.message ||
+            `Secondary SubCategory created successfully`
+        );
+      }
+
       handleClose();
     } catch (error: any) {
       const message =
@@ -122,25 +153,40 @@ function SecSubCategories() {
   };
 
   const handelEdit = (category: any) => {
+    form.setValue("id", category.id);
+    form.setValue("name", category.name);
+    form.setValue("description", category.description);
+    form.setValue("subCategoryId", category.subCategoryId.toString());
     setEdit(true);
     setOpen(true);
-    requestAnimationFrame(() => {
-      form.reset({
-        id: category.id,
-        name: category.name,
-        description: category.description,
-        subCategoryId: category.subCategoryId.toString(),
-      });
-    });
   };
 
   const handleClose = () => {
     setOpen(false);
     setEdit(false);
-    form.reset();
+    form.reset({
+      id: "",
+      name: "",
+      description: "",
+      subCategoryId: "",
+      image: "",
+    });
   };
 
-  const { subCategories, isLoading: subCategoriesLoading } = useSubCategory();
+  const { data: categoriesData } = useQuery({
+    queryKey: ["subcategories", open],
+    queryFn: () => CategoriesApi.getSubCategories({}),
+    refetchOnWindowFocus: true,
+  });
+
+  const subCategories = useMemo(
+    () =>
+      (categoriesData?.data?.data || []).map((item: any) => ({
+        label: item.name,
+        value: item.id,
+      })),
+    [data]
+  );
 
   return (
     <>
@@ -304,6 +350,29 @@ function SecSubCategories() {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        // {...field}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          field.onChange(file ? file : "");
+                        }}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

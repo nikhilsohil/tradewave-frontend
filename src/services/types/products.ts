@@ -35,6 +35,7 @@ export interface Product {
     subCategory: SubCategory
     secondSubCategory: SecondSubCategory
     brand: Brand
+    isActive: boolean
     ProductImages: ProductImage[];
     
 }

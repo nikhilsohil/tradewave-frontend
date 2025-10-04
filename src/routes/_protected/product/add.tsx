@@ -94,7 +94,7 @@ function RouteComponent() {
     queryKey: ["secSubCategories", watchedValues.subCategoryId],
     queryFn: () =>
       SubCategoriesApi.getSecSubCategories({
-        subCategoryId: watchedValues.subCategoryId,
+        id: watchedValues.subCategoryId,
       }),
     enabled: !!watchedValues.subCategoryId,
   });
@@ -181,7 +181,10 @@ function RouteComponent() {
                       <FormItem>
                         <FormLabel>Product Name *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Product 1" {...field} />
+                          <Input
+                            placeholder="Enter product name..."
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -198,6 +201,7 @@ function RouteComponent() {
                             <SelectValue placeholder="Select brand" />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value=" ">Select</SelectItem>
                             {brands?.data?.data.map((brand: Brand) => (
                               <SelectItem
                                 key={brand.id}
@@ -221,7 +225,7 @@ function RouteComponent() {
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="test product"
+                          placeholder="Enter description..."
                           rows={3}
                           {...field}
                         />
@@ -237,11 +241,18 @@ function RouteComponent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Category *</FormLabel>
-                        <Select onValueChange={field.onChange}>
+                        <Select
+                          onValueChange={(e) => {
+                            field.onChange(e);
+                            form.setValue("subCategoryId", undefined);
+                            form.setValue("secondSubCategoryId", undefined);
+                          }}
+                        >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value=" ">Select</SelectItem>
                             {categories?.data?.data.map(
                               (category: Categories) => (
                                 <SelectItem
@@ -265,13 +276,17 @@ function RouteComponent() {
                       <FormItem>
                         <FormLabel>Sub Category *</FormLabel>
                         <Select
-                          onValueChange={field.onChange}
+                          onValueChange={(e) => {
+                            field.onChange(e);
+                            form.setValue("secondSubCategoryId", undefined);
+                          }}
                           disabled={!watchedValues.categoryId}
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select sub category" />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value=" ">Select</SelectItem>
                             {subCategories?.data?.data.map(
                               (subCategory: SubCategories) => (
                                 <SelectItem
@@ -302,6 +317,7 @@ function RouteComponent() {
                             <SelectValue placeholder="Select second sub category" />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value=" ">Select</SelectItem>
                             {secSubCategories?.data?.data.map(
                               (secSubCategory: SecondSubCategories) => (
                                 <SelectItem

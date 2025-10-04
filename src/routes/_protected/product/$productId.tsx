@@ -77,7 +77,7 @@ function RouteComponent() {
   const [images, setImages] = useState<(File | string)[]>([]);
   const [hasInitialized, setHasInitialized] = useState(false);
 
-  const form = useForm<ProductFormData>({
+  const form = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "",
@@ -234,7 +234,7 @@ function RouteComponent() {
     if (image instanceof File) {
       return URL.createObjectURL(image);
     }
-    return image;
+    return image ?? "";
   };
 
   const handleCancel = () => {
@@ -309,6 +309,7 @@ function RouteComponent() {
                           <SelectValue placeholder="Select brand" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value=" ">Select</SelectItem>
                           {brands?.data?.data.map((brand: Brand) => (
                             <SelectItem
                               key={brand.id}
@@ -350,7 +351,11 @@ function RouteComponent() {
                     <FormItem>
                       <FormLabel>Category *</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(e) => {
+                          field.onChange(e);
+                          form.setValue("subCategoryId", undefined);
+                          form.setValue("secondSubCategoryId", undefined);
+                        }}
                         value={field.value?.toString() ?? ""}
                         disabled={!isEditing}
                       >
@@ -358,6 +363,7 @@ function RouteComponent() {
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value=" ">Select</SelectItem>
                           {categories?.data?.data.map(
                             (category: Categories) => (
                               <SelectItem
@@ -381,7 +387,10 @@ function RouteComponent() {
                     <FormItem>
                       <FormLabel>Sub Category *</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(e) => {
+                          field.onChange(e);
+                          form.setValue("secondSubCategoryId", undefined);
+                        }}
                         value={field.value?.toString() ?? ""}
                         disabled={!isEditing || !watchedValues.categoryId}
                       >
@@ -389,6 +398,7 @@ function RouteComponent() {
                           <SelectValue placeholder="Select sub category" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value=" ">Select</SelectItem>
                           {subCategories?.data?.data.map(
                             (subCategory: SubCategories) => (
                               <SelectItem
@@ -420,6 +430,7 @@ function RouteComponent() {
                           <SelectValue placeholder="Select second sub category" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value=" ">Select</SelectItem>
                           {secSubCategories?.data?.data.map(
                             (secSubCategory: SecondSubCategories) => (
                               <SelectItem
